@@ -5,7 +5,7 @@ import store from '@/store'
 export default function setup(){
     axios.interceptors.request.use(async(config) => {
         //console.log(config)
-        if(config.url === 'http://localhost/supernova-almacen-api/login'){
+        if(config.url === '/supernova-almacen-api/loginVentas'){
             const axiosNoInterceptor = axios.create()
             await axiosNoInterceptor.post(config.url,config.data).then(async(response)=>{
                 console.log('auth resonse no interceptor')
@@ -19,7 +19,7 @@ export default function setup(){
             const expire = sessionStorage.getItem('expire');
 
             if(token && expire){
-                console.log('entrando a interceptor')
+                //console.log('entrando a interceptor')
                 config.headers.Authorization = token
                 // let dateActual = new Date();
                 // let remainTime = (new Date(expire))
@@ -35,10 +35,9 @@ export default function setup(){
     });
 
     axios.interceptors.response.use(async(response) =>{
-        console.log(response.data.status)
         if(response.data.status == 401){
-            console.log(response.data.mensaje)
-            store.commit('alert/setActiveAlert',response.data.mensaje)
+            //console.log(response.data.mensaje)
+            store.commit('login/Logout')
             return response
         }else{
             return response

@@ -1,11 +1,12 @@
 <template>
     <div class="container-login">
         <div class="form-login">
+            <mensaje-login></mensaje-login>
             <img src="@/assets/logo-supernova-blue.png" alt="" width="160">
             <v-row class="mt-2">
                 <v-col cols="12">
                     <v-text-field type="email" outlined label="Usuario" v-model="loginModel.username" append-icon="mdi-account"> </v-text-field>
-                    <v-text-field type="password" outlined label="Contraseña" v-model="loginModel.password" append-icon="mdi-lock"> </v-text-field>
+                    <v-text-field type="password" outlined label="Contraseña"  v-model="loginModel.password" append-icon="mdi-lock" @keypress.enter="loginSession()"> </v-text-field>
                     <v-btn class="primary" @click="loginSession()">ENTRAR</v-btn>
                 </v-col>
             </v-row>
@@ -15,8 +16,10 @@
 </template>
 
 <script>
+import MensajeLogin from '@/components/elements/MensajeLogin.vue'
 import {mapActions} from 'vuex'
 export default {
+  components: { MensajeLogin },
     data(){
         return{
             loginModel:{
@@ -67,12 +70,15 @@ export default {
       align-items: center;
       .form-login{
         width: 380px;
-        height: 400px;
+        height:auto;
         background-color: #fff;
         border-radius: 10px;
         padding: 20px;
         box-sizing: border-box;
         text-align: center;
+        @media(max-width:450px){
+            width: 87%;
+        }
       }
     }
 

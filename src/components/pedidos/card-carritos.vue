@@ -17,7 +17,9 @@
                             </div>
                         </v-col>
                         <v-col cols="12">
-                            <span class="primary--text dato"><v-icon class="mr-1" color="primary">mdi-phone</v-icon>{{item.telefono}}  </span><br>
+                            <span class="primary--text dato"><v-icon class="mr-1" color="primary">mdi-whatsapp</v-icon>
+                                <a href="https://api.whatsapp.com/send?phone=525579973110&text=Hola que tal." target="_blank">  {{item.telefono}}</a>
+                            </span><br>
                             <span class="primary--text dato"><v-icon class="mr-1" color="primary">mdi-email</v-icon>{{item.correo}}  </span><br>
                             <span class="primary--text dato"><v-icon class="mr-1" color="primary">mdi-city</v-icon>{{item.ciudad}}  </span>
                         </v-col>
@@ -33,9 +35,11 @@ export default {
     props:['datos'],
 
     methods:{
+        //metodo para seleccionar carrito y pasar ID del carrito
         selectedCar(id){
             this.$emit('selected',id)
         }
+
     }
 }
 </script>
@@ -54,6 +58,8 @@ export default {
                 color: #fff !important   
             .v-icon
                 color: #fff !important
+            a
+                color: #fff !important
         .v-avatar
             width: 20% !important
             @media(max-width: 960px)
@@ -62,4 +68,6 @@ export default {
             width: 70% !important
         .dato
             font-size: 14px
+        a
+            text-decoration: none !important
 </style>

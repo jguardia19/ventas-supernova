@@ -12,7 +12,7 @@
             <v-card-text>
                 <v-row class="mt-3">
                     <v-col cols="12">
-                        <h2>Tu pedido quedara registrado en pedidos sin procear</h2>
+                        <h2>Tu pedido quedara registrado en pedidos sin procesar</h2>
                     </v-col>
                 </v-row>
             </v-card-text>

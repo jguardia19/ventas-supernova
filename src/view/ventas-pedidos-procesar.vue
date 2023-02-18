@@ -22,9 +22,6 @@
                             <h1 class="card_confirm__title">{{modal_confirm_data.title}} </h1>
                             <p class="card_confirm__text">{{modal_confirm_data.texto}} </p>
                         </v-col>
-                        <v-col cols="12" class="text-right">
-                            <v-btn text color="error" @click="modal_confirm = false">CANCELAR</v-btn>
-                        </v-col>
                     </v-row>  
                 </v-card-text>
             </v-card>
@@ -39,7 +36,7 @@
                 <v-row class="mt-3">
                     <v-col cols="8" class="d-flex justify-space-around">
                         <h3 class="ticket--text"><v-icon color="ticket">mdi-cart-variant</v-icon> Pedido  Orden: {{$route.params.orden}} </h3> 
-                        <v-chip color="success" outlined><v-icon>mdi-cash </v-icon> <span>Total:${{Total}} </span></v-chip>  
+                        <v-chip color="success" outlined><v-icon>mdi-cash </v-icon> <span>Total:${{Total | precio}}.00 </span></v-chip>  
                         <v-btn class="primary" @click="modal_add = true"><v-icon>mdi-plus-circle</v-icon> AGREGAR PRODUCTO</v-btn> 
                     </v-col>
                     <v-col cols="12" v-if="!flag">
@@ -59,7 +56,7 @@
                     <v-card-title>
                         <v-col cols="12" class="d-flex justify-space-between">
                             <h3 class="ticket--text"><v-icon color="ticket">mdi-cart-variant</v-icon> Pedido  Orden: {{$route.params.orden}} </h3> 
-                            <v-chip color="success" outlined><v-icon>mdi-cash </v-icon> <span>Total:${{Total}} </span></v-chip>  
+                            <v-chip color="success" outlined><v-icon>mdi-cash </v-icon> <span>Total:${{Total | precio}}.00 </span></v-chip>  
                             <v-btn class="primary" @click="modal_add = true"><v-icon>mdi-plus-circle</v-icon> AGREGAR PRODUCTO</v-btn>  
                         </v-col>
                         <v-col cols="12" v-if="!flag">
@@ -121,10 +118,10 @@
                                                 <span>Cancelar</span>
                                             </v-tooltip>
                                         </div>
-                                        <v-chip label outlined color="ticket" class="price"  @click="item.check = !item.check"  style="font-weight:bold" v-else>${{item.precio}} </v-chip>
+                                        <v-chip label outlined color="ticket" class="price"  @click="item.check = !item.check"  style="font-weight:bold" v-else>${{item.precio | precio}}.00 </v-chip>
                                     </template>
                                     <template v-slot:[`item.import`]="{item}">
-                                        <span class="success--text"  style="font-weight:bold">${{item.total}} </span>
+                                        <span class="success--text"  style="font-weight:bold">${{item.total | precio}}.00 </span>
                                     </template>
                                     <template v-slot:[`item.actions`]="{ item,index }">  
                                         <v-tooltip bottom>
@@ -158,7 +155,7 @@
                     <v-card-text>
                         <v-row class="mt-3">
                             <v-col cols="12">
-                                    <v-expansion-panels v-model="panel" multiple :disabled="credito">
+                                    <v-expansion-panels  multiple :disabled="credito">
                                         <v-expansion-panel>
                                             <v-expansion-panel-header class="primary">
                                                 <h3 class="white--text"><v-icon large color="white">mdi-cash</v-icon>  EFECTIVO</h3>
@@ -171,7 +168,8 @@
                                                         value="efectivo"
                                                         v-model="metodoPago"
                                                         ></v-checkbox>
-                                                        <v-text-field outlined type="text"  @keypress="soloNumeros($event)" v-model="monto_efectivo" :disabled="showEfectivo" placeholder="0.00"></v-text-field>
+                                                        <!-- <v-text-field outlined type="text"  @keypress="soloNumeros($event)" v-model="monto_efectivo" :disabled="showEfectivo" placeholder="0.00"></v-text-field> -->
+                                                        <money v-model="monto_efectivo" v-bind="money" :disabled="showEfectivo" placeholder="0.00"></money>
                                                     </v-col>
                                                 </v-row>
                                             </v-expansion-panel-content>
@@ -183,21 +181,31 @@
                                             <v-expansion-panel-content>
                                                 <v-row class="mt-2">
                                                     <v-col cols="12" class="d-flex justify-space-between" >
-                                                            <v-checkbox
-                                                            color="primary"
-                                                            v-model="metodoPago"
-                                                            value="transferencia"
-                                                            ></v-checkbox>
-                                                            <v-text-field outlined type="text"  @keypress="soloNumeros($event)"  v-model="monto_transferencia" class="mr-2" placeholder="0.00" :disabled="showTransferencia" ></v-text-field>
-                                                            <v-autocomplete 
-                                                            label="Seleccione el banco"
-                                                            outlined 
-                                                            :items="banks"
-                                                            item-text="nombreBank"
-                                                            item-value="codigo"
-                                                            :disabled="showTransferencia"
-                                                            v-model="banco_transferencia"
-                                                            ></v-autocomplete>
+                                                        <v-row>
+                                                            <v-col cols="2">
+                                                                <v-checkbox
+                                                                color="primary"
+                                                                v-model="metodoPago"
+                                                                value="transferencia"
+                                                                ></v-checkbox>   
+                                                            </v-col>
+                                                            <v-col cols="5">
+                                                                <money v-model="monto_transferencia" v-bind="money" :disabled="showTransferencia" placeholder="0.00"></money>
+                                                            </v-col>
+                                                            <v-col cols="5">
+                                                                <v-autocomplete 
+                                                                label="Seleccione el banco"
+                                                                outlined 
+                                                                :items="banks"
+                                                                item-text="nombreBank"
+                                                                item-value="codigo"
+                                                                :disabled="showTransferencia"
+                                                                v-model="banco_transferencia"
+                                                                ></v-autocomplete>
+                                                            </v-col>
+                                                        </v-row>
+                                                        <!-- <v-text-field outlined type="text"  @keypress="soloNumeros($event)"  v-model="monto_transferencia" class="mr-2" placeholder="0.00" :disabled="showTransferencia" ></v-text-field> -->
+
                                                     </v-col>
                                                 </v-row>
                                             </v-expansion-panel-content>
@@ -209,21 +217,29 @@
                                             <v-expansion-panel-content>
                                                 <v-row class="mt-2">
                                                     <v-col cols="12" class="d-flex">
-                                                            <v-checkbox
-                                                            color="primary"
-                                                            v-model="metodoPago"
-                                                            value="deposito"
-                                                            ></v-checkbox>
-                                                            <v-text-field outlined type="text"  @keypress="soloNumeros($event)" v-model="monto_deposito" class="mr-2" placeholder="0.00" :disabled="showDeposito"></v-text-field>
-                                                            <v-autocomplete 
-                                                            label="Seleccione el banco"
-                                                            outlined 
-                                                            item-text="nombreBank"
-                                                            item-value="codigo"
-                                                            :items="banks"
-                                                            v-model="banco_deposito"
-                                                            :disabled="showDeposito"
-                                                            ></v-autocomplete>
+                                                        <v-row>
+                                                            <v-col cols="2">
+                                                                <v-checkbox
+                                                                color="primary"
+                                                                v-model="metodoPago"
+                                                                value="deposito"
+                                                                ></v-checkbox>
+                                                            </v-col>
+                                                            <v-col cols="5">
+                                                                <money v-model="monto_deposito" v-bind="money" :disabled="showDeposito" placeholder="0.00"></money>
+                                                            </v-col>
+                                                            <v-col cols="5">
+                                                                <v-autocomplete 
+                                                                label="Seleccione el banco"
+                                                                outlined 
+                                                                item-text="nombreBank"
+                                                                item-value="codigo"
+                                                                :items="banks"
+                                                                v-model="banco_deposito"
+                                                                :disabled="showDeposito"
+                                                                ></v-autocomplete>
+                                                            </v-col>
+                                                        </v-row>
                                                     </v-col>
                                                 </v-row>
                                             </v-expansion-panel-content>
@@ -235,13 +251,22 @@
                                             <v-expansion-panel-content>
                                                 <v-row class="mt-2">
                                                     <v-col cols="12" class="d-flex">
-                                                            <v-checkbox
-                                                            color="primary"
-                                                            v-model="metodoPago"
-                                                            value="otro"
-                                                            ></v-checkbox>
-                                                            <v-text-field outlined class="mr-2" @keypress="soloNumeros($event)" v-model="monto_otro" type="text" placeholder="0.00" :disabled="showOtro"></v-text-field>
-                                                            <v-textarea rows="1" outlined label="Nota" :disabled="showOtro"> </v-textarea>
+                                                        <v-row>
+                                                            <v-col cols="2">
+                                                                <v-checkbox
+                                                                color="primary"
+                                                                v-model="metodoPago"
+                                                                value="otro"
+                                                                ></v-checkbox>
+                                                            </v-col>
+                                                            <v-col cols="5">
+                                                                <money v-model="monto_otro" v-bind="money" :disabled="showOtro" placeholder="0.00"></money>
+                                                            </v-col>
+                                                            <v-col cols="5">
+                                                                <v-textarea rows="1" v-model="nota_otro" outlined label="Nota" :disabled="showOtro"> </v-textarea>
+                                                            </v-col>
+                                                        </v-row>
+                                                            <!-- <v-text-field outlined class="mr-2" @keypress="soloNumeros($event)" v-model="monto_otro" type="text" placeholder="0.00" :disabled=""></v-text-field> -->
                                                     </v-col>
                                                 </v-row>
                                             </v-expansion-panel-content>
@@ -268,19 +293,19 @@
                                             <v-row>
                                             <v-col cols="6" class="text-center">
                                                 <v-chip class="mb-2" label color="white"><v-icon class="mr-2" color="primary">mdi-truck-fast</v-icon> <span class="indigo--text">Paqueteria</span> </v-chip>
-                                                <v-text-field outlined @keypress="soloNumeros($event)" v-model="pedido.venta_paqueteria" placeholder="0.00" :disabled="credito"></v-text-field>
+                                                <money v-model="pedido.venta_paqueteria" v-bind="money" :disabled="credito" placeholder="0.00"></money>
                                             </v-col>
                                             <v-col cols="6" class="text-center">
                                                 <v-chip class="mb-2" label color="white"><v-icon class="mr-2" color="primary">mdi-cart-percent</v-icon> <span class="indigo--text">IVA %</span>   </v-chip>
-                                                <v-text-field outlined  @keypress="soloNumeros($event)" v-model="pedido.iva" placeholder="0.00" :disabled="credito"></v-text-field>
+                                                <money v-model="pedido.iva" v-bind="money" :disabled="credito" placeholder="0.00"></money>
                                             </v-col>
                                             <v-col cols="6" class="text-center">
                                                 <v-chip class="mb-2" label color="white"><v-icon class="mr-2" color="primary">mdi-security</v-icon><span class="indigo--text">Seguro</span> </v-chip>
-                                                <v-text-field outlined  @keypress="soloNumeros($event)" v-model="pedido.seguro" placeholder="0.00" :disabled="credito"></v-text-field>
+                                                <money v-model="pedido.seguro" v-bind="money" :disabled="credito" placeholder="0.00"></money>
                                             </v-col>
                                             <v-col cols="6" class="text-center">
                                                 <v-chip class="mb-2" label color="white"><v-icon class="mr-2" color="primary">mdi-cash-refund</v-icon><span class="indigo--text">Saldo a favor</span> </v-chip>
-                                                <v-text-field outlined  @keypress="soloNumeros($event)" v-model="pedido.saldo_pendiente" placeholder="0.00" :disabled="credito"></v-text-field>
+                                                <money v-model="pedido.saldo_pendiente" v-bind="money" :disabled="credito" placeholder="0.00"></money>
                                             </v-col>
                                         </v-row>
                                     </v-card>
@@ -301,14 +326,16 @@
                                             <v-col cols="6" class="text-center">
                                                 <v-text-field type="text" @keypress="soloNumeros($event)" v-model="pedido.cajas" append-icon="mdi-package-variant-closed" label="Cajas" outlined color="primary" ></v-text-field>
                                             </v-col>
-                                            <v-col cols="6" class="text-center">
-                                                <v-text-field type="date" v-model="pedido.fecha_entrega" label="Fecha recojo" outlined color="primary"></v-text-field>
+                                            <v-col cols="6" class="text-center" style="position:relative;">
+                                                <span class="label-fecha">Fecha y hora de recojo:</span>
+                                                <input class="input-date-time" type="datetime-local" v-model="pedido.fecha_entrega" />
+                                                <!-- <v-text-field type="datetime" v-model="pedido.fecha_entrega" label="Fecha recojo" outlined color="primary"></v-text-field> -->
                                             </v-col>
                                             <v-col cols="6" class="text-center">
                                                 <v-textarea  rows="1"  v-model="pedido.nota" append-icon="mdi-note" label="Nota" outlined color="primary" ></v-textarea>
                                             </v-col>
                                             <v-col cols="12" class="text-center">
-                                                <v-text-field type="text"  label="Token" v-model="pedido.token" color="primary" outlined append-icon="mdi-security" ></v-text-field>
+                                                <v-text-field type="password"  label="Token" v-model="pedido.token" color="primary" outlined append-icon="mdi-security" ></v-text-field>
                                             </v-col>
                                             <v-col cols="12" class="text-right">
                                                 <v-btn class="primary" large @click="procesarPedido()" :disabled="!flag">Procesar</v-btn>
@@ -331,6 +358,9 @@
                 <p class="mt-2 ml-2">{{mensaje}} </p>
             </div>
         </transition>
+        <div class="footer-price">
+            <h4 class="primary--text" style="font-size:33px;margin-right: 22px;">Total:${{Total | precio}}.00 </h4> 
+        </div>
     </v-container>
 </template>
 
@@ -339,8 +369,9 @@ import pedidosDatosPersonales from '@/components/pedidos-datos-personales.vue'
 import axios from 'axios'
 import {mapMutations,mapActions} from 'vuex'
 import ModalAddProducto from '@/components/modal-add-producto.vue'
+import {Money} from 'v-money'
 export default {
-components: { pedidosDatosPersonales, ModalAddProducto },
+components: { pedidosDatosPersonales, ModalAddProducto , Money},
     data(){
         return{
             modal_add:false,
@@ -359,7 +390,6 @@ components: { pedidosDatosPersonales, ModalAddProducto },
             mensaje:'',
             type:'',
             icon:'',
-
             pedido:{
                 orden:this.$route.params.orden,
                 venta_paqueteria:null,
@@ -374,8 +404,17 @@ components: { pedidosDatosPersonales, ModalAddProducto },
                 efectivo:'',
                 banco:'',
                 datos:[],
-                metodos:'',
+                metodos:[],
                 token:''
+            },
+
+            money: {
+            decimal: '.',
+            thousands: ',',
+            prefix: '$ ',
+            suffix: '',
+            precision: 2,
+            masked: false
             },
 
             modal_confirm_data:{
@@ -393,17 +432,17 @@ components: { pedidosDatosPersonales, ModalAddProducto },
             showTransferencia:true,
             showDeposito:true,
             showOtro:true,
+            nota_otro:'',
             showCredito:true,                                                 
 
             headerPedido:[
                 { text: 'Codigo', value: 'cod' ,align: 'center', class: "primary white--text px-0 mx-0",},
                 { text: 'Nombre del producto', value: 'nom' ,align: 'center', class: "primary white--text px-0 mx-0",},
-                { text: 'Cantidad', value: 'cant',align: 'center', class: "primary white--text px-0 mx-0",},
-                { text: 'Precio', value: 'price',align: 'center', class: "primary white--text px-0 mx-0",},
-                { text: 'Importe', value: 'import',align: 'center', class: "primary white--text px-0 mx-0", },
+                { text: 'Cantidad (pz)', value: 'cant',align: 'center', class: "primary white--text px-0 mx-0",},
+                { text: 'Precio ($)', value: 'price',align: 'center', class: "primary white--text px-0 mx-0",},
+                { text: 'Importe ($)', value: 'import',align: 'center', class: "primary white--text px-0 mx-0", },
                 { text: 'Acciones', value: 'actions', align: 'center',class: "primary white--text px-0 mx-0", },
             ],
-
             banks:[
                 {codigo:"isn-bbva",nombreBank:"ISN BBVA"},
                 {codigo:"isn-hsbc",nombreBank:"ISN HSBC"},
@@ -417,11 +456,10 @@ components: { pedidosDatosPersonales, ModalAddProducto },
             banco_deposito:'',
             banco_transferencia:'',
             vendedoras:[
-                {id:1,nombre:"Maria Suarez"},
-                {id:2,nombre:"Carolina Martinez"},
-                {id:3,nombre:"Zulay Guaina"},
-                {id:4,nombre:"Yuly Nuñez"},
-                {id:5,nombre:"Oscarly Conde"}
+                {id:1,nombre:"Daniela Ordoñez"},
+                {id:2,nombre:"Selene Hernandez"},
+                {id:3,nombre:"Vanessa Vidal"},
+                {id:4,nombre:"Oficina"},
             ]
         }
     },
@@ -433,7 +471,7 @@ components: { pedidosDatosPersonales, ModalAddProducto },
     },
 
     watch:{
-
+        //watch que escucha el metodo de pago para habilitar campos
         metodoPago(value){
 
             let filterEfectivo = value.filter(item => item === 'efectivo')
@@ -479,17 +517,34 @@ components: { pedidosDatosPersonales, ModalAddProducto },
     },
 
     computed:{
+        //variable computada que suma los monto para un total
         Total(){
-            const acumular = (acumulador,pedido) => acumulador + parseInt(pedido.total) 
+            const acumular = (acumulador,pedido) => acumulador + parseFloat(pedido.total) 
             return  this.pedidos.reduce(acumular,0)
         },
+
+         //variable para llevar acumulador de las cantidades de los productos
+        cantidades(){
+            const acumular = (acumulador,pedido) => acumulador + (parseInt(pedido.cantidad))
+            return this.pedidos.reduce(acumular,0)
+        }
     },
+
+     //filtro para precios o cantidades, representa el monto en unidad inglesa ejemplo : 1,000
+    filters:{
+        precio(value) {
+                return value.toLocaleString('en');
+        }
+    },
+
     methods:{
 
         ...mapMutations('overlay',['setActiveOverlay','setDesactiveOverlay']),
 
+        //metodo del store que trae todos los pedidos procesados
         ...mapActions('pedidos',['getAllPedidosProcesados']),
 
+        //metodo que trae detalle del pedido segun orden
         async getAllDetallePedido(orden){
             this.flag = true
             try
@@ -515,7 +570,7 @@ components: { pedidosDatosPersonales, ModalAddProducto },
                 console.log(e)
             }
         },
-
+        //metodo para solo aceptar numeros en campos de texto
         soloNumeros(e){
             var key = window.event ? e.which : e.keyCode;
             if ((key < 48 && key != 46) || (key > 57 && key !=46) ) {
@@ -523,7 +578,7 @@ components: { pedidosDatosPersonales, ModalAddProducto },
             }
         },
 
-
+        //evento para activar card en scroll bajo
         onScroll(e){
             if(e.target.scrollTop > 128){
                 this.scrollActive = true
@@ -532,9 +587,10 @@ components: { pedidosDatosPersonales, ModalAddProducto },
             }
         },
 
+        //metodo que almacena lista de codigos de productos segun orden
         async almacenarCodigos(orden){
+            this.codigos = []
             try{
-
                 const response = await axios.get(`/ventas/detallePedido?orden=${orden}`)
 
                 if(response.status == 200){
@@ -542,7 +598,7 @@ components: { pedidosDatosPersonales, ModalAddProducto },
                     let flag = []
 
                     for(let i=0;i<this.productsCodigo.length;i++){
-                    // console.log(this.productsCodigo[i].codigo.trim().toUpperCase())
+                        // console.log(this.productsCodigo[i].codigo.trim().toUpperCase())
                         let filtro = flag.filter(item => item == this.productsCodigo[i].codigo );
                         if(filtro.length > 0){
                             let index = this.codigos.findIndex(item => item.codigo == this.productsCodigo[i].codigo)
@@ -559,14 +615,12 @@ components: { pedidosDatosPersonales, ModalAddProducto },
                         }
                     }   
                 }
-                
-                //console.log(this.codigos)
             }catch(e){
                 console.log(e)
             }
                 
         },
-
+        //metodo que trae los datos personales del usuario, al componente de datos personales
         async getAllDetalleUsuario(orden){
             try
             {
@@ -581,7 +635,7 @@ components: { pedidosDatosPersonales, ModalAddProducto },
                 console.log(e)
             }
         },
-
+        //actualizar las cantidades de un item
         async updateCantidad(item,index,method){
             try
             {
@@ -590,15 +644,17 @@ components: { pedidosDatosPersonales, ModalAddProducto },
 
                 let filtro = this.codigos.find(tag => tag.codigo === item.codigo)
 
+                console.log(filtro)
+
                 let cantidadTotal = parseInt(num) + parseInt(filtro.cantidad);
 
-                let oldPrice = parseInt(item.precio);
+                let oldPrice = parseFloat(item.precio);
                 let price = null;
                 let cambio = false;
 
                 if(method == 1){
                     price = this.verificarPrice(item,cantidadTotal)  
-                    if(oldPrice != parseInt(price)){
+                    if(oldPrice != parseFloat(price)){
                         cambio = true
                     }
                 }else{
@@ -617,7 +673,8 @@ components: { pedidosDatosPersonales, ModalAddProducto },
                     "suma":num*price,
                     "cambio":cambio,
                     "price":price,
-                    "codigo":item.codigo
+                    "codigo":item.codigo,
+                    "cantidades":this.cantidades
                 }
 
                 const response = await axios.post(`/ventas/detallePedido`,data);
@@ -640,6 +697,7 @@ components: { pedidosDatosPersonales, ModalAddProducto },
             }
         },
 
+        //agregar un producto nuevo a la orden
         async addNewProducto(producto,cantidad){
             try
             {
@@ -651,13 +709,13 @@ components: { pedidosDatosPersonales, ModalAddProducto },
                     cantidadTotal = parseInt(cantidad ) + parseInt(filtro.cantidad) 
                 }
                 
-                let oldPrice = parseInt(producto.preciou);
+                let oldPrice = parseFloat(producto.preciou);
 
                 let price = null;
                 let cambio = false;
                 price = this.verificarPrice(producto,cantidadTotal)
 
-                if(oldPrice != parseInt(price)){
+                if(oldPrice != parseFloat(price)){
                     cambio = true
                 }
 
@@ -668,7 +726,7 @@ components: { pedidosDatosPersonales, ModalAddProducto },
                     "orden":this.$route.params.orden,
                     "nombre":producto.nombre,
                     "cantidad":cantidad,
-                    "suma":parseInt(cantidad)*price,
+                    "suma":parseFloat(cantidad)*price,
                     "precio":price,
                     "codigo":producto.codigo,
                     "id_usuario":this.User.id,
@@ -702,31 +760,33 @@ components: { pedidosDatosPersonales, ModalAddProducto },
                 console.log(e)
             }
         },
-
+        
+        //eliminar un item de la orden
         async deleteItem(item,index){
+            this.pedidos.splice(index, 1)
             let filtro = this.codigos.find(tag => tag.codigo === item.codigo)
             console.log(filtro)
             let cantidadTotal =   parseInt(filtro.cantidad)- parseInt(item.cantidad)
-            console.log(cantidadTotal)
-            let oldPrice = parseInt(item.precio);
+            let oldPrice = parseFloat(item.precio);
             let price = null;
             let cambio = false;
 
             price = this.verificarPrice(item,cantidadTotal)
             
-            if(oldPrice != parseInt(price)){
+            if(oldPrice != parseFloat(price)){
                 cambio = true
             }
             try
             {
                 let data = {
                     "action":'delete',
-                    "id":this.pedidos[index].id,
+                    "id":item.id,
                     "cambio":cambio,
                     "orden":this.$route.params.orden,
-                    "suma":parseInt(item.cantidad)*oldPrice,
+                    "suma":parseFloat(item.cantidad)*oldPrice,
                     "precio":price,
-                    "codigo":item.codigo
+                    "codigo":item.codigo,
+                    "cantidades":this.cantidades
                 }
 
                 const response = await axios.post(`/ventas/detallePedido`,data);
@@ -746,6 +806,7 @@ components: { pedidosDatosPersonales, ModalAddProducto },
             }
         },
 
+        //metodo de validacion antes de procesar
         validateProcess(){
             let error = {count:0,Error:null} ;
 
@@ -768,19 +829,52 @@ components: { pedidosDatosPersonales, ModalAddProducto },
                 this.pedido.efectivo = ""
             }
             
-            this.pedido.venta_paqueteria = this.pedido.venta_paqueteria === null ? 0 : this.pedido.venta_paqueteria
-            this.pedido.iva = this.pedido.iva === null ? 0 : this.pedido.iva
-            this.pedido.seguro = this.pedido.seguro === null ? 0 : this.pedido.seguro
-            this.pedido.saldo_pendiente = this.pedido.saldo_pendiente === null ? 0 : this.pedido.saldo_pendiente
-            this.monto_efectivo = this.monto_efectivo === null ? 0 : this.monto_efectivo
-            this.monto_deposito = this.monto_deposito === null ? 0 : this.monto_deposito
-            this.monto_transferencia = this.monto_transferencia === null ? 0 : this.monto_transferencia
-            this.monto_otro = this.monto_otro === null ? 0 : this.monto_otro
+            this.pedido.venta_paqueteria = this.pedido.venta_paqueteria === null || this.pedido.venta_paqueteria === '' ? 0 : this.pedido.venta_paqueteria
+            this.pedido.iva = this.pedido.iva === null || this.pedido.iva === '' ? 0 : this.pedido.iva
+            this.pedido.seguro = this.pedido.seguro === null || this.pedido.seguro === '' ? 0 : this.pedido.seguro
+            this.pedido.saldo_pendiente = this.pedido.saldo_pendiente === null || this.pedido.saldo_pendiente === '' ? 0 : this.pedido.saldo_pendiente
+            this.monto_efectivo = this.monto_efectivo === null || this.monto_deposito === '' ? 0 : this.monto_efectivo
+            this.monto_deposito = this.monto_deposito === null || this.monto_deposito === '' ? 0 : this.monto_deposito
+            this.monto_transferencia = this.monto_transferencia === null || this.monto_transferencia === '' ? 0 : this.monto_transferencia
+            this.monto_otro = this.monto_otro === null || this.monto_otro === '' ? 0 : this.monto_otro
+
             
 
             let extras = parseFloat(this.pedido.venta_paqueteria)+parseFloat(this.pedido.iva)+parseFloat(this.pedido.seguro)+parseFloat(this.pedido.saldo_pendiente);
             let suma = parseFloat(this.monto_efectivo)+parseFloat(this.monto_deposito)+parseFloat(this.monto_transferencia)+parseFloat(this.monto_otro);
             let total = parseFloat(this.Total)+extras;
+
+            // this.pedido.banco = `${this.banco_deposito} ${this.banco_transferencia}`
+            // this.pedido.metodos = this.metodoPago.toString()
+
+            let Pagos = []
+            this.metodoPago.forEach(item => {
+                let monto = 0
+                let banco = ''
+
+                if(item === 'efectivo'){
+                    monto  = this.monto_efectivo
+                    banco  = 'efectivo'
+                }
+                if(item === 'deposito'){
+                    monto = this.monto_deposito
+                    banco = this.banco_deposito
+                }
+                if(item === 'transferencia'){
+                    monto = this.monto_transferencia
+                    banco = this.banco_transferencia
+                }
+                if( item === 'otro'){
+                    monto = this.monto_otro
+                    banco = item
+                }
+
+                Pagos.push({"metodo":item,"monto":monto,"banco":banco})
+
+            })
+
+            this.pedido.metodos = Pagos
+
 
             if(suma != total){
                 error.count++;
@@ -791,6 +885,7 @@ components: { pedidosDatosPersonales, ModalAddProducto },
             return error;
         },
 
+        //metodo para mostrare tipo de msj segun validacion
         showError(error){
             switch(error){
                 case 1:
@@ -812,8 +907,9 @@ components: { pedidosDatosPersonales, ModalAddProducto },
                 break;
             }
         },
-
+        //metodo para procesar pedido
         async procesarPedido(){
+            this.scrollActive = false
             this.setActiveOverlay()
             try
             {
@@ -824,6 +920,7 @@ components: { pedidosDatosPersonales, ModalAddProducto },
                     const response = await axios.post(`/ventas/procesarPedidoCredito`,this.pedido)
                     if(response.status == 200){
                         this.setDesactiveOverlay()
+                        this.getAllPedidosProcesados()
                         this.modal_confirm_data.icon = 'mdi-check-circle-outline'
                         this.modal_confirm_data.status = 'success'
                         this.modal_confirm_data.title = 'Proceso exitoso!!!'
@@ -835,6 +932,13 @@ components: { pedidosDatosPersonales, ModalAddProducto },
                             this.modal_confirm = false
                             this.$router.push('/procesados');
                         },4000); 
+                    }else{
+                        if(response.status == 401){
+                            this.modal_confirm_data.icon = 'mdi-alert'
+                            this.modal_confirm_data.status = 'warning'
+                            this.modal_confirm_data.title = 'Ocurrio un imprevisto!!!'
+                            this.modal_confirm_data.texto = response.data.mensaje
+                        }
                     }
                     console.log(response.data)
                 }else{
@@ -879,7 +983,7 @@ components: { pedidosDatosPersonales, ModalAddProducto },
                 }
             }
         },
-
+        //metodo que activa notificacion  de validacion
         notificationActive(){
             this.mensaje = 'Debes introducir una cantidad valida'
             this.type = 'warning'
@@ -890,6 +994,7 @@ components: { pedidosDatosPersonales, ModalAddProducto },
             },2000);
         },
 
+        //metodo para verificar el precio, descuento o no
         verificarPrice(item,cantidadTotal){
 
             let price = null;
@@ -924,12 +1029,11 @@ components: { pedidosDatosPersonales, ModalAddProducto },
             }
             return price;
         },
-
-
+        //metodo para cerrar modal de add
         closeModalAdd(){
             this.modal_add = false
         },
-
+        //metodo para verificar
         verificar(item,index){
             this.pedido[index].check = true
         }
@@ -1020,6 +1124,46 @@ components: { pedidosDatosPersonales, ModalAddProducto },
         border-bottom-right-radius: 8px;
         z-index: 999;
 }
+
+    .footer-price{
+        width: 100%;
+        height: 58px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        background-color: #fff;
+        box-shadow: 0px -6px 3px 0px #4444449c;
+        text-align: right;
+        z-index: 4;
+    }
+
+    .v-money{
+        width: 100%;
+        border: 1px solid #d3d3d3;
+        border-radius: 5px;
+        padding: 11px;
+        height: 55px;
+        box-sizing: border-box;
+        outline-color: #3f51b5 ;
+    }
+
+    .input-date-time{
+        width: 100%;
+        height: 57px;
+        padding: 5px;
+        border: 1px solid #837f7f;
+        outline-color: #3f51b5;
+        border-radius: 5px;
+    }
+    .label-fecha{
+        position: absolute;
+        background: #fff;
+        width:auto;
+        font-size: 12px;
+        top: 2px;
+        left: 20px;
+        padding: 0px;
+    }
 
     .fade-enter-from,   
     .fade-leave-to{

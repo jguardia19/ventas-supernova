@@ -12,7 +12,6 @@ export default {
 </script>
 
 <style lang="scss">
-
     .login{
         // background-image: url('../assets/background-bodega-desk.jpg') !important;
         // background-repeat: no-repeat !important;

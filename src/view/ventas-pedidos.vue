@@ -1,9 +1,9 @@
 <template>
-  <v-container class="mt-3">
+  <v-container class="mt-10 mx-3">
     <v-dialog max-width="400" v-model="modal_qr">
-       <v-card>
-             <qr-code 
-                    style="positio"
+      <v-card>
+            <qr-code 
+                    style="position"
                       v-bind="attrs"
                       v-on="on"
                         :text="`https://www.importadorasupernova.com/mipdf/imprimirreg.php?orden=${ordenPedido}&id=${idClient}`"
@@ -12,10 +12,30 @@
                         bg-color="#fff" 
                         error-level="L">
                     </qr-code>
-       </v-card>
+      </v-card>
     </v-dialog>
+
+    <v-dialog max-width="500" v-model="modal_noEncontrado">
+        <v-card>
+            <v-card-title class="error">
+                <v-col cols="12" class="d-flex justify-space-between white--text">
+                    <h3>{{ mensaje_modal }} </h3>
+                </v-col>
+            </v-card-title>
+            <v-card-text>
+                <v-row class="mt-3">
+                    <v-col cols="12" class="text-center">
+                        <v-icon color="error" large>
+                            mdi-file-document-remove
+                        </v-icon>
+                    </v-col>
+                </v-row>
+            </v-card-text>
+        </v-card>
+    </v-dialog>
+
     <v-row>
-      <v-col cols="12">
+      <v-col cols="12"> 
         <v-card class="px-5 py-8" elevation="0">
           <v-row class="mt-2">
             <v-col cols="12" sm="6" md="4" lg="3" class="d-flex">
@@ -54,12 +74,13 @@
                   <v-btn text color="error" @click="modal = false">
                     Cancelar
                   </v-btn>
-                  <v-btn text color="primary" @click="$refs.dialog.save(fecha_pedidos)">
+                  <v-btn text color="primary" @click="getAllPedidosDate()">
+                    <!-- <v-btn text color="primary" @click="$refs.dialog.save(fecha_pedidos)"></v-btn> -->
                     Elegir
                   </v-btn>
                 </v-date-picker>
               </v-dialog>
-              <v-btn class="primary btn-search" @click="getAllPedidosDate(fecha_pedidos)">Buscar</v-btn>
+              <v-btn class="primary btn-search" @click="getAllPedidosDate()">Buscar</v-btn>
             </v-col>
             <v-col cols="12" sm="6" md="4" lg="3" class="d-flex">
               <v-btn class="primary" @click="$router.push('/pedidos/newPedido')"><v-icon>mdi-plus</v-icon> Agregar pedido</v-btn>
@@ -99,7 +120,7 @@
             </template>
             <template v-slot:[`item.total`]="{ item }">
               <span class="primary px-2 py-2 white--text"
-                >${{ item.total}}
+                >${{ parseInt(item.total)  | precio}}.00
               </span>
             </template>
             <template v-slot:[`item.actions`]="{ item }">
@@ -134,21 +155,6 @@
                 </template>
                 <span>Imprimir</span>
               </v-tooltip>
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                    color="black"
-                    class="mr-2"
-                    icon
-                    v-bind="attrs"
-                    v-on="on"
-                    @click="viewQR(item)"
-                  >
-                    <v-icon>mdi-qrcode</v-icon>
-                  </v-btn>
-                </template>
-                <span>QR</span>
-              </v-tooltip>
             </template>
           </v-data-table>
         </v-card>
@@ -174,7 +180,8 @@ export default {
       modal_qr:false,
       ordenPedido:'',
       idClient:'',
-
+      modal_noEncontrado:false,
+      mensaje_modal:'',
       header: [
         {
           text: "#",
@@ -183,13 +190,13 @@ export default {
           class: "primary white--text px-0 mx-0",
         },
         {
-          text: "Cliente",
+          text: "Nombre del Cliente",
           value: "nombres",
           align: "center",
           class: "primary white--text px-0 mx-0",
         },
         {
-          text: "Orden",
+          text: "Orden(Folio)",
           value: "Orden",
           align: "center",
           class: "primary white--text px-0 mx-0",
@@ -201,19 +208,19 @@ export default {
           class: "primary white--text px-0 mx-0",
         },
         {
-          text: "Cantidad de productos",
+          text: "Cantidad de productos (pz)",
           value: "cant",
           align: "center",
           class: "primary white--text px-0 mx-0",
         },
         {
-          text: "Total de ventas",
+          text: "Total de ventas ($)",
           value: "total",
           align: "center",
           class: "primary white--text px-0 mx-0",
         },
         {
-          text: "Fecha",
+          text: "Fecha del pedido" ,
           value: "fecha",
           align: "center",
           class: "primary white--text px-0 mx-0",
@@ -231,11 +238,11 @@ export default {
   mounted() {
     //this.setActiveOverlay()
     this.getAllPedidosPagados();
-    //this.getAllReport()
   },
 
   computed:{
 
+    //variable computada para restringir busqueda en calendario
     fechaMax(){
       const d   = new Date()
       let day   = d.getDate()
@@ -250,15 +257,24 @@ export default {
       return `${year}-${month}-${day}`
     },
   },
+  
+  //filtro para precios o cantidades, representa el monto en unidad inglesa ejemplo : 1,000
+  filters:{
+    precio(value) {
+            return value.toLocaleString('en');
+    },
+  },
+
+  watch:{
+
+  },
 
   methods: {
 
     ...mapMutations('overlay',['setActiveOverlay','setDesactiveOverlay']),
 
-    save(){
 
-    },
-
+    //metodo para traer los pedidos sin procesar del dia actual
     async getAllPedidosPagados() {
         try {
           const response =  await axios.get(`/ventas/pedidos`)
@@ -271,13 +287,24 @@ export default {
         }
     },
 
-    async getAllPedidosDate(fecha_pedidos) {
+    //metodo para traer todos los pedidos sin procesar de una determinada fecha
+    async getAllPedidosDate() {
+      this.$refs.dialog.save(this.fecha_pedidos)
+      this.modal = false
+      let fecha_pedidos = this.fecha_pedidos
         this.setActiveOverlay()
         try {
             const response = await axios.get(`/ventas/pedidos?fecha=${fecha_pedidos}`);
             if(response.status == 200){
                 console.log('data',response.data) 
                 this.pedidos = response.data;  
+                if(this.pedidos.length === 0){
+                  this.mensaje_modal = 'No se encontraron resultados'
+                  this.modal_noEncontrado = true
+                  setTimeout(() => {
+                      this.modal_noEncontrado = false
+                  }, 2000);
+                }
             }
             this.setDesactiveOverlay()
         }catch (e) {
@@ -286,74 +313,83 @@ export default {
         }
     },
 
-    async getAllReport() {
-        let date = new Date();
-        let day = date.getDate();
-        let moth = date.getMonth()+1;
-        let year = date.getFullYear();
-        console.log(day,moth,year)
+    // async getAllReport() {
+    //     let date = new Date();
+    //     let day = date.getDate();
+    //     let moth = date.getMonth()+1;
+    //     let year = date.getFullYear();
+    //     console.log(day,moth,year)
 
 
-        let datos = [];
-        try {
-            for(var i =0;i<7;i++){
-                let fecha = ''; 
-                if((day-i) < 10){
-                    fecha = `${year}-${moth}-0${day-i}`;
-                }else{
-                    fecha = `${year}-${moth}-${day-i}`;  
-                }
+    //     let datos = [];
+    //     try {
+    //         for(var i =0;i<7;i++){
+    //             let fecha = ''; 
+    //             if((day-i) < 10){
+    //                 fecha = `${year}-${moth}-0${day-i}`;
+    //             }else{
+    //                 fecha = `${year}-${moth}-${day-i}`;  
+    //             }
                 
-                const response = await axios.get(`/ventas/pedidos?fecha=${fecha}`);
-                datos.push(response.data)
-            }
+    //             const response = await axios.get(`/ventas/pedidos?fecha=${fecha}`);
+    //             datos.push(response.data)
+    //         }
 
 
-            console.log(datos)
-        }catch (e) {
-        console.log(e);
-        }
-    },
+    //         console.log(datos)
+    //     }catch (e) {
+    //     console.log(e);
+    //     }
+    // },
 
-
+    //traer pedido sin procesar segun numero de orden
     async getAllPedidoOrden(orden){
-        this.setActiveOverlay()
-        try
-        {
-            await axios.get(`/ventas/pedidos?orden=${orden}`).then((response)=>{
-              if(response.status == 200){
-                this.pedidos = response.data;  
-              } 
-            }).catch((error)=>{
-              console.error(error)
-            });
-            this.setDesactiveOverlay() 
-           
-        }catch(e)
-        {
-            console.log(e)
-            this.setActiveOverlay()
-        }
-    },
-
-    viewQR(item){
-      this.ordenPedido = item.orden
-      this.idClient  = item.id
-      this.modal_qr = true
+      if(orden === ''){
+          this.mensaje_modal = 'Debe introducir el numero de orden'
+          this.modal_noEncontrado = true
+          setTimeout(() => {
+              this.mensaje_modal = ''
+              this.modal_noEncontrado = false
+          }, 2000);
+      }else{
+          this.setActiveOverlay()
+          try
+          {
+              await axios.get(`/ventas/pedidos?orden=${orden}`).then((response)=>{
+                if(response.status == 200){
+                  this.pedidos = response.data;  
+                  if(this.pedidos.length === 0){
+                    this.mensaje_modal = 'No se encontraron resultados'
+                    this.modal_noEncontrado = true
+                    setTimeout(() => {
+                        this.mensaje_modal = ''
+                        this.modal_noEncontrado = false
+                    }, 2000);
+                  }
+                } 
+              }).catch((error)=>{
+                console.error(error)
+              });
+              this.setDesactiveOverlay() 
+          }catch(e)
+          {
+              console.log(e)
+              this.setActiveOverlay()
+          }
+      }        
     }
-
-    }
+  }
 };
 </script>
 
 <style laang="scss">
-.btn-search {
-  height: 55px !important;
-  margin-left: -4px !important;
-  border-top-left-radius: 0px !important;
-  border-bottom-left-radius: 0px !important;
-}
-.v-text-field fieldset, .v-text-field .v-input__control {
-    margin-bottom: 0px !important;
-}
+  .btn-search{
+    height: 55px !important;
+    margin-left: -4px !important;
+    border-top-left-radius: 0px !important;
+    border-bottom-left-radius: 0px !important;
+  }
+  .v-text-field fieldset, .v-text-field .v-input__control {
+      margin-bottom: 0px !important;
+  }
 </style>

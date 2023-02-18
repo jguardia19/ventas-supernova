@@ -97,7 +97,10 @@
 
                             <div class="d-flex" v-else>
                                 <v-icon color="ticket" class="mr-2">mdi-truck-fast</v-icon>
-                                <p class="mt-5"><b>Paqueteria:</b> {{datos.paqueteria}} </p>
+                                <p class="mt-5"><b>Paqueteria:</b> 
+                                    <span class="error--text" v-if="datos.paqueteria === ''"> No tiene paqueteria asignada</span>
+                                    <span v-else>{{datos.paqueteria}} </span>    
+                                </p>
                             </div>  
                         </v-col>
                         <v-col cols="12" sm="6" md="4" lg="3" >
@@ -130,7 +133,7 @@ export default {
     },
 
     methods:{
-
+        //funcion para traer todas las paqueterias
         async getAllPaqueterias(){
             try
             {
@@ -142,22 +145,27 @@ export default {
                 console.log(e)
             }
         },
-
+        
+        //metodo para activar la edicion
         editarDatos(){
             this.editData = true
         },
 
+        //metodo para cancelar la edicion
         cancelar(){
             this.editData = false
         },
 
+        //metodo para actualizar
         actualizar(){
             this.editData = false
         },
 
+        //funcion que actualiza la informacion personal del usuario
         async updateDataUser(){
             this.loading = true
             this.datos.orden = this.$route.params.orden
+            this.datos.id_user = sessionStorage.getItem('id');
             try
             {
                 const response = await axios.post(`/ventas/dataUsuario`,this.datos);
@@ -172,6 +180,7 @@ export default {
             }
         },
 
+        //funcion que trae el detalle de datos personales del usuario
         async getAllDetalleUsuario(orden){
             this.loading = true
             try

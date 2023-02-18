@@ -1,92 +1,137 @@
 <template>
-    <v-container class="mt-3 contenedor">
+    <v-container class="mt-5 contenedor">
         <v-row>
             <v-col cols="12">
-                <v-card elevation="3" class="px-4 mt-3">
-                    <v-data-table :headers="cabecera" :items="tiposUsuario" class="py-7">
-                        <template v-slot:top>
-                        <v-toolbar flat class="pb-5">
-                            <v-row>
-                            <v-col cols="6" class="d-flex">
-                                <v-icon large color="primary">mdi-account-switch</v-icon>
-                                <h2 class="primary--text mt-2 ml-3">Tipo de usuarios</h2>
-                            </v-col>
-                            <v-col cols="6" class="text-right">
-                                <v-btn class="primary" @click="addTypeUser()">
-                                <v-icon class="mr-2">mdi-plus-circle</v-icon>
-                                AGREGAR TIPO DE USUARIO
-                                </v-btn>
-                            </v-col>
-                            </v-row>
-                        </v-toolbar>
-                        </template>
-                        <template v-slot:[`item.act`]="{ item }">
-                            <v-row>
-                                <v-col cols="6" class="mx-auto d-flex justify-space-around" style="align-items:center">
-                                    <v-chip label color="success" v-if="item.estatus_tipo">Activo</v-chip>
-                                    <v-chip label color="error" v-else>Inactivo </v-chip>
-                                    <v-switch
-                                        inset
-                                        color="success"
-                                        v-model="item.estatus_tipo"
-                                        @change="updateTypeUser(item)"   
-                                    ></v-switch>
+                <div class="container-menu-items">
+                    <div :class="{'item-menu-admin':true,'active':activeUsuarios} " @click="selectItemMenu('usuario')">
+                        <div class="avatar-icon">
+                            <v-icon color="primary">mdi-account</v-icon>
+                        </div>
+                        <h4 class="primary--text">Usuarios</h4>
+                    </div>
+                    <div :class="{'item-menu-admin':true,'active':activeType} " @click="selectItemMenu('type')">
+                        <div class="avatar-icon">
+                            <v-icon color="primary">mdi-account-switch</v-icon>
+                        </div>
+                        <h4 class="primary--text">Tipos de Usuarios</h4>
+                    </div>
+                    <div :class="{'item-menu-admin':true,'active':activeModulos} " @click="selectItemMenu('modulo')">
+                        <div class="avatar-icon">
+                            <v-icon color="primary">mdi-account-switch</v-icon>
+                        </div>
+                        <h4 class="primary--text">Modulos</h4>
+                    </div>
+                    <div :class="{'item-menu-admin':true,'active':activeCliente} " @click="selectItemMenu('clientes')">
+                        <div class="avatar-icon">
+                            <v-icon color="primary">mdi-account-group</v-icon>
+                        </div>
+                        <h4 class="primary--text">Clientes</h4>
+                    </div>
+                </div>     
+            </v-col>
+        </v-row>
+
+
+        <transition 
+            enter-active-class="animate__animated animate__fadeInUp"
+            leave-active-class="animate__animated animate__fadeOutUp"
+            mode="out-in">
+            <v-row v-if="activeType">
+                <v-col cols="12">
+                    <v-card elevation="3" class="px-4 mt-3">
+                        <v-data-table :headers="cabecera" :items="tiposUsuario" class="py-7">
+                            <template v-slot:top>
+                            <v-toolbar flat class="pb-5">
+                                <v-row>
+                                <v-col cols="6" class="d-flex">
+                                    <v-icon large color="primary">mdi-account-switch</v-icon>
+                                    <h2 class="primary--text mt-2 ml-3">Tipo de usuarios</h2>
                                 </v-col>
-                            </v-row>
-                            
-                        </template>
-                        <template v-slot:[`item.actions`]="{ item }">
+                                <v-col cols="6" class="text-right">
+                                    <v-btn class="primary" @click="addTypeUser()">
+                                    <v-icon class="mr-2">mdi-plus-circle</v-icon>
+                                    AGREGAR TIPO DE USUARIO
+                                    </v-btn>
+                                </v-col>
+                                </v-row>
+                            </v-toolbar>
+                            </template>
+                            <template v-slot:[`item.act`]="{ item }">
+                                <v-row>
+                                    <v-col cols="6" class="mx-auto d-flex justify-space-around" style="align-items:center">
+                                        <v-chip label color="success" v-if="item.estatus_tipo">Activo</v-chip>
+                                        <v-chip label color="error" v-else>Inactivo </v-chip>
+                                        <v-switch
+                                            inset
+                                            color="success"
+                                            v-model="item.estatus_tipo"
+                                            @change="updateTypeUser(item)"   
+                                        ></v-switch>
+                                    </v-col>
+                                </v-row>
+                                
+                            </template>
+                            <template v-slot:[`item.actions`]="{ item }">
+                                <v-tooltip bottom>
+                                    <template v-slot:activator="{ on, attrs }">
+                                    <v-btn
+                                        color="info"
+                                        class="mr-2"
+                                        icon
+                                        v-bind="attrs"
+                                        v-on="on"
+                                        @click="viewModulesTypeUser(item)"
+                                    >
+                                        <v-icon>mdi-eye</v-icon>
+                                    </v-btn>
+                                    </template>
+                                    <span>Ver permisos</span>
+                            </v-tooltip>
                             <v-tooltip bottom>
                                 <template v-slot:activator="{ on, attrs }">
                                 <v-btn
-                                    color="info"
+                                    color="warning"
                                     class="mr-2"
                                     icon
                                     v-bind="attrs"
                                     v-on="on"
-                                    @click="viewModulesTypeUser(item)"
+                                    @click="editType(item)"
                                 >
-                                    <v-icon>mdi-eye</v-icon>
+                                    <v-icon>mdi-pencil</v-icon>
                                 </v-btn>
                                 </template>
-                                <span>Ver permisos</span>
-                        </v-tooltip>
-                        <v-tooltip bottom>
-                            <template v-slot:activator="{ on, attrs }">
-                            <v-btn
-                                color="warning"
-                                class="mr-2"
-                                icon
-                                v-bind="attrs"
-                                v-on="on"
-                                @click="editType(item)"
-                            >
-                                <v-icon>mdi-pencil</v-icon>
-                            </v-btn>
-                            </template>
-                            <span>Editar registro</span>
-                        </v-tooltip>
-                            <v-tooltip bottom >
-                                <template v-slot:activator="{ on, attrs }">
-                                <v-btn
-                                    color="primary"
-                                    class="mr-2"
-                                    icon
-                                    v-bind="attrs"
-                                    v-on="on"
-                                    :disabled="!item.estatus_tipo"
-                                    @click="configPermisosUsuario(item)"
-                                >
-                                    <v-icon>mdi-account-settings</v-icon>
-                                </v-btn>
-                                </template>
-                                <span>Configurar permisos</span>
+                                <span>Editar registro</span>
                             </v-tooltip>
-                        </template>
-                    </v-data-table>
-                    </v-card>
-            </v-col>
-        </v-row>
+                                <v-tooltip bottom >
+                                    <template v-slot:activator="{ on, attrs }">
+                                    <v-btn
+                                        color="primary"
+                                        class="mr-2"
+                                        icon
+                                        v-bind="attrs"
+                                        v-on="on"
+                                        :disabled="!item.estatus_tipo"
+                                        @click="configPermisosUsuario(item)"
+                                    >
+                                        <v-icon>mdi-account-settings</v-icon>
+                                    </v-btn>
+                                    </template>
+                                    <span>Configurar permisos</span>
+                                </v-tooltip>
+                            </template>
+                        </v-data-table>
+                        </v-card>
+                </v-col>
+            </v-row>
+        </transition>
+
+        <transition 
+            enter-active-class="animate__animated animate__fadeInUp"
+            leave-active-class="animate__animated animate__fadeOutUp"
+            mode="out-in">
+            
+            <component :is='componenteMenu'></component>
+        </transition>
 
         <v-dialog v-model="modal_tipo" max-width="500">
             <v-card>
@@ -209,12 +254,18 @@
                     </v-card-actions>
                 </v-card>
         </v-dialog>
+
+
     </v-container>
 </template>
 
 <script>
 import axios from 'axios'
+import adminUsuarios from '@/components/admin/admin-usuarios.vue'
+import adminModulos from '@/components/admin/admin-modulos.vue'
+import adminClientes from '@/components/admin/admin-clientes.vue'
 export default {
+    components: { adminUsuarios, adminModulos, adminClientes },
     data(){
         return{
             tiposUsuario:[],
@@ -236,6 +287,11 @@ export default {
             agregar:false,
             idTipo:null,
 
+            activeUsuarios:false,
+            activeType:false,
+            activeModulos:false,
+            activeCliente:false,
+            componenteMenu:'',
             cabecera:[
                 {
                 text: "ID",
@@ -352,23 +408,23 @@ export default {
                         // se inicia un ciclo para recorrer segun la cantidad de modulos asignados al 
                         // tipo de usuario en base a la cantidad de modulos
                         for(let i=0;i<modules.length;i++){
-                             for(let j=0;j<this.modulos.length;j++){
+                            for(let j=0;j<this.modulos.length;j++){
                                 // se compara si el modulo registrado existe en los modulos
                                 // y se cambia la data segun el registro del tipo de usuarioi
                                 if(modules[i].id_modulo == this.modulos[j].id){
                                     this.modulos[j].addView = modules[i].addView;
                                     this.modulos[j].addEdit = modules[i].addEdit;
                                 }
-                             }
+                            }
                         }
                     }else{
                         //sino existe registro abrimos los modulos tal cual 
                         this.getAllModules()
                     }
                 }
-             }catch(e){
+            }catch(e){
                 console.log(e)
-             }
+            }
              //despues del proceso asignamos id al idTipo para registrar y aperturamos modal
             this.actionPermisos = 1
             this.idTipo = item.id
@@ -460,6 +516,31 @@ export default {
             }
         },
 
+        //metodo para seleccionar opcion de admin
+        selectItemMenu(item){
+            this.activeUsuarios = false,this.activeModulos = false, this.activeType = false, this.activeCliente = false 
+            switch(item){
+                case 'usuario':
+                    this.activeUsuarios = true
+                    this.componenteMenu = 'admin-usuarios'
+                    break;
+                case 'type':
+                    this.activeType = true
+                    this.componenteMenu = ''
+                    break;
+                case 'modulo':
+                    this.activeModulos = true
+                    this.componenteMenu = 'admin-modulos'
+                    break;
+                case 'clientes':
+                    this.activeCliente = true
+                    this.componenteMenu = 'admin-clientes'
+                    break;
+                default:
+                    break;
+            }
+        },
+
 
 
         //cerrar modal tipo usuario
@@ -477,6 +558,54 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+    .container-menu-items{
+        width: 100%;
+        display: flex;
+        padding: 20px;
+        box-sizing: border-box;
+        .item-menu-admin{
+            width: 200px;
+            padding: 10px;
+            text-align: center;
+            background-color: white;
+            margin-right: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all ease .4s;
+            &:hover{
+                transform: translateY(-10px);
+                width: 170px;
+                background-color: #2057a5;
+                box-shadow: 0px 1px 4px 1px #a5a5a5;
+                h4{
+                    color: #fff !important;
+                }
+                .avatar-icon{
+                    color: #fff;
+                    .v-icon{
+                        color: #fff !important;
+                    }
+                }
+            }
+        }
+    }
+    .active{
+        transform: translateY(-10px);
+        width: 170px !important;
+        background-color: #fab325 !important;
+        box-shadow: 0px 1px 4px 1px #a5a5a5;
+    }
 
+    .fade-enter-from,.fade-leave-to{
+        opacity: 0
+    }
+    
+    
+    .fade-enter-active,.fade-leave-active{
+        transition: opacity 0.1s ease-out 
+    }
+        
+
+        
 </style>

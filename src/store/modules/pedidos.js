@@ -6,10 +6,11 @@ export default {
     namespaced: true,
 
     state: {
-        pedidosPagados:[],
-        pedidosCredito:[],
+        pedidosPagados:   [],
+        pedidosCredito:   [],
         pedidosProcesados:[],
-        pedidosAlmacen:[]
+        pedidosAlmacen:   [],
+        carts:            []
     },
     mutations: {
 
@@ -27,8 +28,15 @@ export default {
         
         setPedidosAlmacen(state,data){
             state.pedidosAlmacen = data
-        }
+        },
+        
+        setUpdatePedidos(state,orden){
+            state.pedidosAlmacen = orden
+        },
 
+        setUpdateCarts(state,data){
+            state.carts    = data
+        }
     },
     actions: {
 
@@ -80,6 +88,28 @@ export default {
             {
                 console.log(e)
             }
+        },
+
+        async findOnePedido({commit},orden){
+            try
+            {
+                const response = await axios.get(`/ventas/pedidosAlmacen?orden=${orden}`);
+                if(response.status == 200){
+                    commit('setUpdatePedidos',response.data)
+                }
+            }catch(e)
+            {
+                console.log(e)
+            }
+        },
+
+        async findAllCarritos({commit}){
+            try {
+                const response = await axios.get(`/productos/CarritoCompras?cars=cars`)
+                commit('setUpdateCarts',response.data)
+            } catch (e) {
+                console.log(e)
+            }
         }
 
 
@@ -99,6 +129,10 @@ export default {
 
         countAlmacen(state){
             return state.pedidosAlmacen.length
+        },
+
+        countCarritos(state){
+            return state.carts.length
         }
     }
 

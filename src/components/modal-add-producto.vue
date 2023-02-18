@@ -50,6 +50,7 @@ export default {
     },
 
     computed:{
+        //variable computada para el modal
         modal(){
             return this.modalAdd
         }
@@ -58,6 +59,7 @@ export default {
         this.getAllProducts()
     },
     methods:{
+        //funcion para traer todos los productos
         async getAllProducts(){
             try
             {
@@ -68,7 +70,7 @@ export default {
                 console.log(e)
             }
         },
-
+        //metodo para cerrar modal
         closeModal(){
             this.product = {}
             this.add = false
@@ -76,10 +78,11 @@ export default {
             this.$emit('close')
         },
 
+        //funcion para seleccionar 
         selectProduct(){
             this.add = true
         },
-
+        //funcion para agregar producto
         addProducto(){
             if(parseInt(this.cantidad) <= 0){
                 this.$emit('activeNotification')

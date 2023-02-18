@@ -1,12 +1,37 @@
 <template>
     <v-container class="mt-5">
+
+        <v-dialog max-width="600" v-model="modal_alert">
+            <v-card>
+                <v-card-title class="">
+                    <v-col cols="12" class="d-flex justify-space-between">
+                        <h3> El folio <b class="error--text"> {{ orden }} no se encuentra en almacen </b></h3>
+                    </v-col>
+                </v-card-title>
+                <v-card-text>
+                    <v-row class="mt-3">
+                        <v-col cols="12" class="text-center">
+                            <v-icon color="error" large>
+                                mdi-file-document-remove
+                            </v-icon>
+                        </v-col>
+                    </v-row>
+                </v-card-text>
+            </v-card>
+        </v-dialog>
+
         <v-row>
             <v-col cols="12">
                 <v-card class="px-5 py-5">
                     <v-card-title>
-                        <v-col cols="12" class="d-flex">
+                        <v-col cols="6" class="d-flex">
                             <h3 class="primary--text">Pedidos en almacen </h3>
-                            <v-chip label color="success" class="ml-3"><v-icon color="white" class="mr-1">mdi-warehouse</v-icon> {{countAlmacen}}</v-chip>
+                            <v-chip class="success ml-2">{{countAlmacen}}</v-chip>
+                            <v-btn class="ml-2" color="success" @click="getAllPedidosAlmacen()"><v-icon color="white" class="mr-1">mdi-warehouse</v-icon>  Todos </v-btn>
+                        </v-col>
+                        <v-col cols="3"></v-col>
+                        <v-col cols="3" class="d-flex">
+                            <v-text-field outlined label="Buscar folio por orden" append-icon="mdi-magnify" v-model="orden" @keypress.enter="findOnePedido(orden)"></v-text-field>
                         </v-col>
                     </v-card-title>
                     <v-data-table
@@ -58,13 +83,17 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 export default {
     data(){
         return{
             page: 1,
             pageCount: 0,
             itemsPerPage: 50,
+            orden:'',
+            //modal:false,
+            mensaje_modal:'',
+            modal_alert:false,
             headerPedido:[
                 { text: 'N°', value: 'num' ,align: 'center', class: "primary white--text px-0 mx-0"},
                 { text: 'CLIENTE', value: 'nombres' ,align: 'center', class: "primary white--text px-0 mx-0"},
@@ -82,13 +111,38 @@ export default {
     },
 
     computed:{
+        //metodos de store el computed state con array de datos
         ...mapState('pedidos',['pedidosAlmacen']),
-        ...mapGetters('pedidos',['countAlmacen'])
+        //metodo store getters, contador de pedidos
+        ...mapGetters('pedidos',['countAlmacen']),
+
+        modal(){
+            return this.countAlmacen > 0 ? false : true
+        }
+    },
+
+    watch:{
+        modal(value){
+            if(value){
+                this.activeModal()
+            }
+        }
     },
 
     methods:{
+        //store metodo para buscar folio
+        ...mapMutations('pedidos',['setBuscarFolio']),
+        //store traer todos los pedidos de almacen y traer uno especifico
+        ...mapActions('pedidos',['getAllPedidosAlmacen','findOnePedido']),
 
-        ...mapActions('pedidos',['getAllPedidosAlmacen'])
+        activeModal(){
+            this.modal_alert = true
+            this.orden = ''
+            setTimeout(() => {
+                this.modal_alert = false
+            }, 2000);
+        }
+
     }
 }
 </script>

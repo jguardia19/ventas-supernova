@@ -1,20 +1,17 @@
 <template>
-    <v-container class="mt-5">
+    <v-container class="mt-2">
         <v-row>
             <v-col cols="12">
                 <v-card>
                     <v-card-title>
                         <v-row>
-                            <v-col cols="12" sm="4" md="3" lg="3">
+                            <v-col cols="12" sm="4" md="3" lg="3" class="mb-0">
                                 <v-text-field type="date" v-model="fecha" :max="fechaMax" outlined label="Seleccione fecha"></v-text-field>
                             </v-col>
-                            <v-col cols="6" class="mirror"></v-col>
-                            <v-col cols="12" sm="6" md="4" lg="4" class="text-right pt-2"><h2>Total: <b class="primary--text">${{corte.total_venta | monto}} </b> </h2></v-col>
-                            <v-col cols="12" sm="6" md="4" lg="4" class="text-right pt-2"><h2>Ganancia: <b class="success--text">${{corte.ganancia | monto}} </b> </h2></v-col>
                         </v-row>
                     </v-card-title>
                     <v-card-text>
-                        <v-row class="mt-3">
+                        <v-row class="mt-1">
                             <v-col cols="12" sm="6" md="4" lg="4">
                                 <v-card outlined>
                                     <v-card-title class="primary">
@@ -22,49 +19,117 @@
                                     </v-card-title>
                                     <v-card-text>
                                         <v-row class="mt-3">
-                                            <v-col cols="6" class="d-flex celda">
-                                                <v-avatar size="30" color="#D1C4E9">
-                                                    <v-icon  color="#512DA8">mdi-cash</v-icon> 
-                                                </v-avatar>
-                                                <h3 class="primary--text ml-2">Efectivo:</h3> 
-                                            </v-col>
-                                            <v-col cols="6" class="text-right celda">
-                                                <h3>${{corte.total_efectivo | monto}} </h3> 
-                                            </v-col>
-                                            <v-col cols="12">
-                                                <v-divider></v-divider>
-                                            </v-col>
-                                            <v-col cols="6" class="d-flex celda">
-                                                <v-avatar size="30" color="#FFCCBC">
-                                                    <v-icon  color="#FF5722">mdi-cellphone-arrow-down</v-icon> 
-                                                </v-avatar>
-                                                <h3 class="primary--text ml-2">Transferencia, Depositos:</h3> 
-                                            </v-col>
-                                            <v-col cols="6" class="text-right celda">
+
+                                            <div class="celda-montos">
+                                                <div class="d-flex">
+                                                    <v-avatar size="30" color="#D1C4E9">
+                                                        <v-icon  color="#512DA8">mdi-cash</v-icon> 
+                                                    </v-avatar>
+                                                    <h3 class="primary--text ml-2">Efectivo:</h3>  
+                                                </div>
+                                                <h3>${{corte.total_efectivo | monto}} </h3>     
+                                            </div>
+
+                                            <div class="celda-montos">
+                                                <div class="d-flex">
+                                                    <v-avatar size="30" color="#FFCCBC">
+                                                        <v-icon  color="#FF5722">mdi-cellphone-arrow-down</v-icon> 
+                                                    </v-avatar>
+                                                    <h3 class="primary--text ml-2">Transferencia, Depositos:</h3> 
+                                                </div>
                                                 <h3>${{corte.total_bancos | monto}} </h3> 
-                                            </v-col>
-                                            <v-col cols="12">
-                                                <v-divider></v-divider>
-                                            </v-col>
-                                            <v-col cols="6" class="d-flex celda">
-                                                <v-avatar size="30" color="#B3E5FC">
-                                                    <v-icon  color="#039BE5">mdi-clipboard</v-icon> 
-                                                </v-avatar>
-                                                <h3 class="primary--text ml-2">Otro:</h3> 
-                                            </v-col>
-                                            <v-col cols="6" class="text-right celda">
+                                            </div>
+
+                                            <div class="celda-montos">
+                                                <div class="d-flex">
+                                                    <v-avatar size="30" color="#B3E5FC">
+                                                        <v-icon  color="#039BE5">mdi-clipboard</v-icon> 
+                                                    </v-avatar>
+                                                    <h3 class="primary--text ml-2">Otro:</h3> 
+                                                </div>
                                                 <h3> ${{corte.total_otro | monto}} </h3>
-                                            </v-col>
+                                            </div>
                                         </v-row>
                                     </v-card-text>
                                     <v-card-actions class="primary">
-                                        <v-col cols="6">
+                                        <div class="celda-montos" style="border-color:#3f51b5">
                                             <h3 class="white--text">Total:</h3>
-                                        </v-col>
-                                        <v-col cols="6" class="text-right">
                                             <v-chip label color="success"><h4>${{corte.total | monto}}</h4></v-chip>
-                                        </v-col>
+                                        </div>
                                     </v-card-actions>
+                                </v-card>
+                                <v-card outlined class="mt-2">
+                                    <v-card-title class="primary">
+                                        <h5 class="white--text">DETALLES DE BANCOS</h5>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <v-row class="mt-2">
+
+                                            <div class="celda-montos">
+                                                <div class="d-flex">
+                                                    <v-avatar size="30" color="#D1C4E9">
+                                                        <v-icon  color="#512DA8">mdi-bank-outline</v-icon> 
+                                                    </v-avatar>
+                                                    <h3 class="primary--text ml-2">ISN-BBVA:</h3> 
+                                                </div>
+                                                <h3>${{monto_isn_bbva| monto}} </h3> 
+                                            </div>
+                                            <div class="celda-montos">
+                                                <div class="d-flex">
+                                                    <v-avatar size="30" color="#FFCCBC">
+                                                        <v-icon  color="#FF5722">mdi-bank-outline</v-icon> 
+                                                    </v-avatar>
+                                                    <h3 class="primary--text ml-2">ISN-HSBC:</h3> 
+                                                </div>
+                                                <h3>${{monto_isn_hsbc | monto}} </h3> 
+                                            </div>
+                                            <div class="celda-montos" >
+                                                <div class="d-flex">
+                                                    <v-avatar size="30" color="#B3E5FC">
+                                                        <v-icon  color="#039BE5">mdi-bank-outline</v-icon> 
+                                                    </v-avatar>
+                                                    <h3 class="primary--text ml-2">WEBSITE-BBVA:</h3> 
+                                                </div>
+                                                <h3>${{monto_website | monto}}  </h3> 
+                                            </div>
+                                            <div class="celda-montos">
+                                                <div class="d-flex">
+                                                    <v-avatar size="30" color="#E8F5E9">
+                                                        <v-icon  color="#4CAF50">mdi-bank-outline</v-icon> 
+                                                    </v-avatar>
+                                                    <h3 class="primary--text ml-2">LEMUSSA-BBVA:</h3> 
+                                                </div>
+                                                <h4>${{monto_lemussa | monto}} </h4> 
+                                            </div>    
+                                        </v-row>
+                                    </v-card-text>
+                                    <v-card-actions class="primary">
+                                        <div class="celda-montos" style="border-color:#3f51b5">
+                                            <h3 class="white--text">Total:</h3> 
+                                            <v-chip label color="success">
+                                                <h4>${{totalBancos | monto}}</h4> 
+                                            </v-chip>
+                                        </div>
+                                    </v-card-actions>
+                                </v-card>
+
+                                <v-card outlined class="mt-2">
+                                    <v-card-title class="primary">
+                                        <h5 class="white--text">SALDO PENDIENTE</h5>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <v-row class="mt-3">
+                                            <v-col cols="6" class="d-flex celda">
+                                                <v-avatar size="30" color="primary">
+                                                    <v-icon  color="white">mdi-cash-refund</v-icon> 
+                                                </v-avatar>
+                                                <h3 class="primary--text ml-2">TOTAL:</h3> 
+                                            </v-col>
+                                            <v-col cols="6" class="text-right celda">
+                                                <v-chip label color="error"><h4>-${{corte.total_saldo_pendiente | monto}} </h4></v-chip> 
+                                            </v-col>
+                                        </v-row>
+                                    </v-card-text>
                                 </v-card>
                             </v-col>
                             <v-col cols="12" sm="6" md="4" lg="4">
@@ -72,41 +137,35 @@
                                     <v-card-title class="primary">
                                         <h5 class="white--text">DETALLES EXTRAS</h5>
                                     </v-card-title>
-                                     <v-card-text>
+                                    <v-card-text>
                                         <v-row class="mt-3">
-                                            <v-col cols="6" class="d-flex celda">
-                                                <v-avatar size="30" color="#D1C4E9">
-                                                    <v-icon  color="#512DA8">mdi-truck-fast</v-icon> 
-                                                </v-avatar>
-                                                <h3 class="primary--text ml-2">PAQUETERIA:</h3> 
-                                            </v-col>
-                                            <v-col cols="6" class="text-right celda">
+                                            <div class="celda-montos">
+                                                <div class="d-flex">
+                                                    <v-avatar size="30" color="#D1C4E9">
+                                                        <v-icon  color="#512DA8">mdi-truck-fast</v-icon> 
+                                                    </v-avatar>
+                                                    <h3 class="primary--text ml-2">PAQUETERIA:</h3> 
+                                                </div>
                                                 <h3>${{corte.total_paqueteria | monto}} </h3> 
-                                            </v-col>
-                                            <v-col cols="12">
-                                                <v-divider></v-divider>
-                                            </v-col>
-                                            <v-col cols="6" class="d-flex celda">
-                                                <v-avatar size="30" color="#FFCCBC">
-                                                    <v-icon  color="#FF5722">mdi-cart-percent</v-icon> 
-                                                </v-avatar>
-                                                <h3 class="primary--text ml-2">IVA:</h3> 
-                                            </v-col>
-                                            <v-col cols="6" class="text-right celda">
+                                            </div>
+                                            <div class="celda-montos">
+                                                <div class="d-flex">
+                                                    <v-avatar size="30" color="#FFCCBC">
+                                                        <v-icon  color="#FF5722">mdi-cart-percent</v-icon> 
+                                                    </v-avatar>
+                                                    <h3 class="primary--text ml-2">IVA:</h3>  
+                                                </div>
                                                 <h3>${{corte.total_iva | monto}}</h3> 
-                                            </v-col>
-                                             <v-col cols="12">
-                                                <v-divider></v-divider>
-                                            </v-col>
-                                            <v-col cols="6" class="d-flex celda">
-                                                <v-avatar size="30" color="#B3E5FC">
-                                                    <v-icon  color="#039BE5">mdi-security</v-icon> 
-                                                </v-avatar>
-                                                <h3 class="primary--text ml-2">SEGURO PAQUETERIA:</h3> 
-                                            </v-col>
-                                            <v-col cols="6" class="text-right celda">
+                                            </div>
+                                            <div class="celda-montos">
+                                                <div class="d-flex">
+                                                    <v-avatar size="30" color="#B3E5FC">
+                                                        <v-icon  color="#039BE5">mdi-security</v-icon> 
+                                                    </v-avatar>
+                                                    <h3 class="primary--text ml-2">SEGURO PAQUETERIA:</h3> 
+                                                </div>
                                                 <h3>${{corte.total_seguro | monto}} </h3>
-                                            </v-col>
+                                            </div>
                                         </v-row>
                                     </v-card-text>
                                     <v-card-actions class="primary">
@@ -117,92 +176,6 @@
                                             <v-chip label color="warning"><h4>${{corte.total_extras | monto}} </h4> </v-chip>
                                         </v-col>
                                     </v-card-actions>
-                                </v-card>
-                            </v-col>
-                            <v-col cols="12" sm="6" md="4" lg="4">
-                                <v-card outlined>
-                                    <v-card-title class="primary">
-                                        <h5 class="white--text">DETALLES DE BANCOS</h5>
-                                    </v-card-title>
-                                    <v-card-text>
-                                        <v-row class="mt-3">
-                                            <v-col cols="6" class="d-flex celda">
-                                            <v-avatar size="30" color="#D1C4E9">
-                                                    <v-icon  color="#512DA8">mdi-bank-outline</v-icon> 
-                                                </v-avatar>
-                                                <h3 class="primary--text ml-2">ISN-BBVA:</h3> 
-                                            </v-col>
-                                            <v-col cols="6" class="text-right celda">
-                                                <h3>${{monto_isn_bbva| monto}} </h3> 
-                                            </v-col>
-                                            <v-col cols="12">
-                                                <v-divider></v-divider>
-                                            </v-col>
-                                            <v-col cols="6" class="d-flex celda">
-                                                <v-avatar size="30" color="#FFCCBC">
-                                                    <v-icon  color="#FF5722">mdi-bank-outline</v-icon> 
-                                                </v-avatar>
-                                                <h3 class="primary--text ml-2">ISN-HSBC:</h3> 
-                                            </v-col>
-                                            <v-col cols="6" class="text-right celda">
-                                                <h3>${{monto_isn_hsbc | monto}} </h3> 
-                                            </v-col>
-                                            <v-col cols="12">
-                                                <v-divider></v-divider>
-                                            </v-col>
-                                            <v-col cols="6" class="d-flex celda">
-                                                <v-avatar size="30" color="#B3E5FC">
-                                                    <v-icon  color="#039BE5">mdi-bank-outline</v-icon> 
-                                                </v-avatar>
-                                                <h3 class="primary--text ml-2">WEBSITE-BBVA:</h3> 
-                                            </v-col>
-                                            <v-col cols="6" class="text-right celda">
-                                                <h3>${{monto_website | monto}}  </h3> 
-                                            </v-col>
-                                            <v-col cols="12">
-                                                <v-divider></v-divider>
-                                            </v-col>
-                                            <v-col cols="6" class="d-flex celda">
-                                                <v-avatar size="30" color="#E8F5E9">
-                                                    <v-icon  color="#4CAF50">mdi-bank-outline</v-icon> 
-                                                </v-avatar>
-                                                <h3 class="primary--text ml-2">LEMUSSA-BBVA:</h3> 
-                                            </v-col>
-                                            <v-col cols="6" class="text-right celda">
-                                                <h4>${{monto_lemussa | monto}} </h4> 
-                                            </v-col>     
-                                        </v-row>
-                                    </v-card-text>
-                                    <v-card-actions class="primary">
-                                        <v-col cols="6">
-                                            <h3 class="white--text">Total:</h3>
-                                        </v-col>
-                                        <v-col cols="6" class="text-right">
-                                            <v-chip label color="success">
-                                                <h4>${{totalBancos | monto}}</h4> 
-                                            </v-chip>
-                                        </v-col>
-                                    </v-card-actions>
-                                </v-card>
-                            </v-col>
-                            <v-col cols="12" sm="6" md="4" lg="4">
-                                <v-card outlined>
-                                    <v-card-title class="primary">
-                                        <h5 class="white--text">SALDO PENDIENTE</h5>
-                                    </v-card-title>
-                                    <v-card-text>
-                                        <v-row class="mt-3">
-                                            <v-col cols="6" class="d-flex celda">
-                                               <v-avatar size="30" color="primary">
-                                                    <v-icon  color="white">mdi-cash-refund</v-icon> 
-                                                </v-avatar>
-                                                <h3 class="primary--text ml-2">TOTAL:</h3> 
-                                            </v-col>
-                                            <v-col cols="6" class="text-right celda">
-                                                <v-chip label color="error"><h4>-${{corte.total_saldo_pendiente | monto}} </h4></v-chip> 
-                                            </v-col>
-                                        </v-row>
-                                    </v-card-text>
                                 </v-card>
                             </v-col>
                             <v-col cols="12" sm="6" md="4" lg="4">
@@ -249,6 +222,8 @@
                                     </v-card-actions>
                                 </v-card>
                             </v-col>
+                            <v-col cols="12" sm="6" md="4" lg="4">
+                            </v-col>
                         </v-row>
                     </v-card-text>
                     <v-card-actions>
@@ -261,6 +236,12 @@
                 </v-card>
             </v-col>
         </v-row>
+        <div class="footer-total">
+            <div class="row mt-2 px-7 d-flex justify-space-between">
+                <h2>Total: <b class="primary--text">${{corte.total_venta | monto}} </b> </h2>
+                <h2>Ganancia: <b class="success--text">${{corte.ganancia | monto}} </b> </h2>
+            </div>
+        </div>
     </v-container>
 </template>
 
@@ -294,14 +275,15 @@ export default {
     },
 
     watch:{
+        //watch que escucha el cambio de la variable fecha y ejecuta metodos de busqueda y calculo
         fecha(value){
             this.getAllCorte(value)
             this.getAllAsignedDataBank(value)
             this.getAllSalidas(value)
         }
     },
-
     filters:{
+        //filtro para los montos
         monto(value){
             let numero = parseFloat(value);
             let dato = null;
@@ -331,10 +313,11 @@ export default {
     },
 
     computed:{
+        //variable computada para suma de los bancos
         totalBancos(){
             return parseFloat(this.monto_isn_bbva)+parseFloat(this.monto_isn_hsbc)+parseFloat(this.monto_website)+parseFloat(this.monto_lemussa)
         },
-
+        //variable computada fecha maxima para restringir input date 
         fechaMax(){
             const d   = new Date()
             let day   = d.getDate()
@@ -348,7 +331,7 @@ export default {
 
             return `${year}-${month}-${day}`
         },
-
+        //variable computada para el total de salidas del dia
         totalSalidas(){
             const acumular = (acumulador,salida) => acumulador + parseFloat(salida.cantidad)
             return this.salidas.reduce(acumular,0)
@@ -365,6 +348,7 @@ export default {
 
         ...mapMutations('overlay',['setActiveOverlay','setDesactiveOverlay']),
 
+        //metodo que trae calculos de totales para reportes
         async getAllCorte(fecha){
             this.setActiveOverlay()
             try
@@ -379,13 +363,13 @@ export default {
                 console.log(e)
             }
         },
-
+        //metodo para ejecutar por cantidad de cuentas bancarias existentes
         getAllAsignedDataBank(fecha){
             this.bancos.forEach(banco => {
                 this.getAllDataMontoBank(fecha,banco)
             });
         },
-        
+        //funcion que trae los registros segun banco y fecha para almacenar los montos
         async  getAllDataMontoBank(fecha,banco){
             this.bancosMontos = []
             try
@@ -414,7 +398,7 @@ export default {
                 console.log(e)
             }
         },
-
+        //funcion que trae las salidas 
         async getAllSalidas(fecha){
             try
             {
@@ -435,6 +419,18 @@ export default {
 </script>
 
 <style lang="scss">
+
+    .footer-total{
+        width: 100%;
+        height: 58px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        background-color: #fff;
+        box-shadow: 0px -6px 3px 0px #4444449c;
+        text-align: right;
+        z-index: 4;
+    }
     .celda{
         cursor: pointer;
         border-radius: 8px !important;
@@ -455,5 +451,14 @@ export default {
         @media(max-width:955px){
             display: block;
         }
+    }
+
+    .celda-montos{
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #d3d3d3;
+        padding-bottom: 4px;
+        padding-top: 5px;
     }
 </style>

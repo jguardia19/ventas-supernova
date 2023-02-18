@@ -53,7 +53,8 @@ export default {
         async Login({ commit, payload }, dataLogin) {
             try {
 
-                await axios.post('/login', {...dataLogin }).then(function(response) {
+                await axios.post('/loginVentas', {...dataLogin }).then(function(response) {
+                // await axios.post('http://localhost/supernova-almacen-api/loginVentas', {...dataLogin }).then(function(response) {
 
                         const token = response.data.token
 
@@ -65,6 +66,7 @@ export default {
                             sessionStorage.setItem('expire',response.data.expire_token)
                             sessionStorage.setItem('id',response.data.id);
                             sessionStorage.setItem('autenticado', true);
+                            sessionStorage.setItem('type_user', response.data.tipo_usuario)
 
                             commit('setLogin', response.data);
 
@@ -76,7 +78,7 @@ export default {
                                     // }, 8000);
 
                             } else {
-                                router.push('/home');
+                                router.push('/pedidos');
                                 commit('overlay/setDesactiveOverlay', payload, { root: true })
                             }
 
@@ -94,9 +96,11 @@ export default {
                             if (error.response.status === 401) {
                                 console.log('credenciales invalidos')
                                 commit('overlay/setDesactiveOverlay', payload, { root: true })
-                                //commit('modalAlert/setActiveModalCredenciales', payload, { root: true })
+                                commit('mensajeLogin/setActiveMensaje', payload, { root: true })
 
 
+                            } else if(error.response.status === 402){
+                                commit('mensajeLogin/setActiveInautorized', payload, { root: true })
                             } else {
                                 commit('overlay/setDesactiveOverlay', payload, { root: true })
                                 console.log('error de autentificacion')
@@ -120,6 +124,7 @@ export default {
             sessionStorage.removeItem('expire')
             sessionStorage.removeItem('user')
             sessionStorage.removeItem('id')
+            sessionStorage.removeItem('type_user');
             commit('setLogout')
             router.push('/')
         }

@@ -1,14 +1,18 @@
 <template>
   <v-app>
-       
+        <!-- overlay de app  -->
         <overlay-await></overlay-await>
+
+        <!-- notificacion, alertas de la app -->
         <alert-mensaje></alert-mensaje>
+
+        <!-- notificacion de ventas -->
         <notification-ventas></notification-ventas>
         
         <component :is="layout">
             <router-view :layout.sync="layout"/>
         </component>
-       <footer>Copyright © 2022 All Rights Reserved by Importadora Supernova.</footer>
+       <footer>Copyright © 2023 All Rights Reserved by Importadora Supernova.</footer>
   </v-app>
 </template>
 
@@ -29,7 +33,7 @@ export default {
         layout (){
           return (this.$route.meta.layout || defaultLayout)  
         }
-    },
+    }
 };
 </script>
 <style lang="scss">

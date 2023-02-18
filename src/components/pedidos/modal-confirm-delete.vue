@@ -1,5 +1,5 @@
 <template>
-      <v-dialog v-model="$props.modal" max-width="500">
+    <v-dialog v-model="$props.modal" max-width="500">
         <v-card>
             <v-card-title>
                 <v-col cols="12" class="d-flex justify-space-between">

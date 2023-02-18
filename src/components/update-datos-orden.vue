@@ -116,16 +116,23 @@
 
                             <div class="d-flex" v-else>
                                 <v-icon color="ticket" class="mr-2">mdi-truck-fast</v-icon>
-                                <p class="mt-5"><b>Paqueteria:</b> {{datos.paqueteria}} </p>
+                                <p class="mt-5"><b>Paqueteria:</b> 
+                                    <span class="error--text" v-if="datos.paqueteria === ''"> No tiene paqueteria asignada</span>
+                                    <span v-else>{{datos.paqueteria}} </span>
+                                </p>
                             </div>  
                         </v-col>
                         <v-col cols="12" v-if="editData && showPago">
                             <v-row>
-                                <v-col cols="3">
-                                    <v-text-field type="text"  append-icon="mdi-cash" label="Saldo" :disabled="true" v-model="$props.saldoDisponible" outlined color="primary"></v-text-field>
+                                <v-col cols="3" style="position:relative;">
+                                    <!-- <v-text-field type="text"  append-icon="mdi-cash" label="Saldo"  v-model="$props.saldoDisponible" outlined color="primary"></v-text-field> -->
+                                    <money v-model="$props.saldoDisponible" v-bind="money"  label="saldo" :disabled="true"  placeholder="0.00"></money>
+                                    <span style="position:absolute;right:20px;font-size:13px;font-style:italic;">Saldo</span>
                                 </v-col>
-                                <v-col cols="3">
-                                    <v-text-field type="text"  append-icon="mdi-truck-fast" v-model="paqueteria" label="Gasto de nueva  paqueteria" outlined color="primary"></v-text-field>
+                                <v-col cols="3" style="position:relative;">
+                                    <money v-model="paqueteria" v-bind="money"  label="saldo"   placeholder="0.00"></money>
+                                    <span style="position:absolute;right:20px;font-size:13px;font-style:italic;">Gasto de nueva  paqueteria</span>
+                                    <!-- <v-text-field type="text"  append-icon="mdi-truck-fast" v-model="paqueteria" label="Gasto de nueva  paqueteria" outlined color="primary"></v-text-field> -->
                                 </v-col>
                                 <v-col cols="3" class="text-center">
                                     <v-text-field type="text"  append-icon="mdi-cash" v-model="pagoResto"  :disabled="true" :label="`Agregar pago restante de $${saldoRestante-saldoRestante*2}`" outlined color="primary" v-if="saldoRestante < 0"></v-text-field>
@@ -144,15 +151,19 @@
                                         outlined
                                         color="ticket"
                                         append-icon="mdi-cash-register"
+                                        v-if="saldoRestante < 0"
                                     ></v-select>
                                 </v-col>
                                 <v-col cols="3" v-if="showEfectivo" class="text-center">
                                     <v-chip class="mb-2" color="ticket" label outlined><v-icon>mdi-cash</v-icon>  Efectivo:</v-chip>
-                                    <v-text-field outlined type="text"  @keypress="soloNumeros($event)" v-model="monto_efectivo"  placeholder="0.00"></v-text-field>
+                                    <!-- <v-text-field outlined type="text"  @keypress="soloNumeros($event)" v-model="monto_efectivo"  placeholder="0.00"></v-text-field> -->
+                                    <money v-model="monto_efectivo" v-bind="money"    placeholder="0.00"></money>
+
                                 </v-col>
                                 <v-col cols="3" v-if="showDeposito" class="text-center">
                                     <v-chip class="mb-2" color="ticket" label outlined><v-icon>mdi-cellphone-arrow-down</v-icon>  Deposito:</v-chip>
-                                    <v-text-field outlined type="text"  @keypress="soloNumeros($event)" v-model="monto_deposito" class="mr-2" placeholder="0.00" ></v-text-field>
+                                    <!-- <v-text-field outlined type="text"  @keypress="soloNumeros($event)" v-model="monto_deposito" class="mr-2" placeholder="0.00" ></v-text-field> -->
+                                    <money class="mr-2" v-model="monto_deposito" v-bind="money"    placeholder="0.00"></money>
                                     <v-autocomplete 
                                     label="Seleccione el banco"
                                     outlined 
@@ -160,12 +171,13 @@
                                     item-value="codigo"
                                     :items="banks"
                                     v-model="banco_deposito"
-                                    style="margin-top:-14px"
+                                    class="mt-5"
                                     ></v-autocomplete>
                                 </v-col>
                                 <v-col cols="3" v-if="showTransferencia" class="text-center">
                                     <v-chip class="mb-2" color="ticket" label outlined><v-icon>mdi-cash-fast</v-icon> Transferencia:</v-chip>
-                                    <v-text-field outlined type="text"  @keypress="soloNumeros($event)" v-model="monto_transferencia" class="mr-2" placeholder="0.00" ></v-text-field>
+                                    <!-- <v-text-field outlined type="text"  @keypress="soloNumeros($event)" v-model="monto_transferencia" class="mr-2" placeholder="0.00" ></v-text-field> -->
+                                    <money v-model="monto_transferencia" class="mr-2" v-bind="money"    placeholder="0.00"></money>
                                     <v-autocomplete 
                                     label="Seleccione el banco"
                                     outlined 
@@ -173,13 +185,14 @@
                                     item-value="codigo"
                                     :items="banks"
                                     v-model="banco_transferencia"
-                                    style="margin-top:-14px"
+                                    class="mt-5"
                                     ></v-autocomplete>
                                 </v-col>
                                 <v-col cols="3" v-if="showOtro" class="text-center">
                                     <v-chip class="mb-2" color="ticket" label outlined><v-icon>mdi-clipboard</v-icon> Otro:</v-chip>
-                                    <v-text-field outlined class="mr-2" @keypress="soloNumeros($event)" v-model="monto_otro" type="text" placeholder="0.00"></v-text-field>
-                                    <v-textarea rows="1" outlined label="Nota" v-model="nota" > </v-textarea>
+                                    <money v-model="monto_otro" class="mr-2" v-bind="money"    placeholder="0.00"></money>
+                                    <!-- <v-text-field outlined class="mr-2" @keypress="soloNumeros($event)" v-model="monto_otro" type="text" placeholder="0.00"></v-text-field> -->
+                                    <v-textarea rows="1" class="mt-5" outlined label="Nota" v-model="nota" > </v-textarea>
                                 </v-col>
                             </v-row>
                         </v-col>
@@ -200,7 +213,9 @@
 
 <script>
 import axios from 'axios'
+import {Money} from 'v-money'
 export default {
+    components:{Money},
     props:['orden','estatus','saldoDisponible'],
     data(){
         return{
@@ -208,9 +223,7 @@ export default {
             datos:[],
             paqueterias:[], 
             loading:false,
-
             form:1,
-            
             paqueteriaOld:'',
             paqueteriaNew:'',
             typePaqueteria:0,
@@ -250,6 +263,15 @@ export default {
                 paqueteria:'',  
                 estatus:'',
             },
+
+            money: {
+                decimal: '.',
+                thousands: ',',
+                prefix: '$ ',
+                suffix: '',
+                precision: 2,
+                masked: false
+            },
     }
   },
 
@@ -264,25 +286,30 @@ export default {
     //         return require(`@/assets/zapato/zapato_${this.form}.png`);
     //     }
     // },
-
+    
+    //variables computadas
     computed:{
+        //variable de saldo restante
         saldoRestante(){
-            return this.saldoDisponible-this.paqueteria
+            let saldo = this.saldoDisponible-this.paqueteria
+            return saldo.toFixed(2)
         },
-
+        //variable para pago de resto
         pagoResto(){
-            return this.paqueteria - this.saldoDisponible
+            let resto = this.paqueteria - this.saldoDisponible
+            return resto.toFixed(2) 
         },
     },
 
     watch:{
-
+        //watch que observa el monto de paqueteria
         paqueteria(value){
             if(parseFloat(value) <  parseFloat(this.saldoDisponible)){
                 this.valores = []
             }
         },
 
+        //watch que escucha el metodo de pago
         valores(value){
             let filterEfectivo = value.filter(item => item === 'Efectivo')
             if(filterEfectivo.length > 0){
@@ -321,7 +348,7 @@ export default {
     },
 
     methods:{
-
+        //metodo para permitir solo numeros en un campo de texto
         soloNumeros(e){
             var key = window.event ? e.which : e.keyCode;
             if ((key < 48 && key != 46) || (key > 57 && key !=46) ) {
@@ -329,6 +356,8 @@ export default {
             }
         },
 
+        //metodo que trae todas las paqueterias existentes en la BD y adiciona
+        //la ENTREGA EN BODEGA
         async getAllPaqueterias(){
             try
             {
@@ -340,28 +369,28 @@ export default {
             }
         },
 
+        //metodo que habilita el componente de edicion
         editarDatos(){
             this.editData = true
         },
 
+        //metodo que cancela la edicion
         cancelar(){
             this.editData = false
         },
 
-        actualizar(){
-            this.editData = false
-        },
-
+        //metodo para validar las opciones en la actualizacion
         validarUpdate(){
-            
+            //declaramor objeto para validacion
             const dataConfirm =  {saldoFavor:0,cambio:false,newEstatus:'',success:false,monto:0,suma:0}
-
-            this.monto_efectivo = this.monto_efectivo === '' ? 0 : this.monto_efectivo
-            this.monto_deposito = this.monto_deposito === '' ? 0 : this.monto_deposito
-            this.monto_transferencia = this.monto_transferencia === '' ? 0 : this.monto_transferencia
-            this.monto_otro = this.monto_otro === '' ? 0 : this.monto_otro
-
+            //verificamos que todas als variables que almacenan montos si estan vacias igualar a cero
+            this.monto_efectivo = this.monto_efectivo === '' || this.monto_efectivo === null ? 0 : this.monto_efectivo
+            this.monto_deposito = this.monto_deposito === '' || this.monto_deposito === null ? 0 : this.monto_deposito
+            this.monto_transferencia = this.monto_transferencia === '' || this.monto_transferencia === null ? 0 : this.monto_transferencia
+            this.monto_otro = this.monto_otro === '' || this.monto_otro === null ? 0 : this.monto_otro
+            //sumamos todos los montos 
             let suma = parseFloat(this.monto_efectivo)+parseFloat(this.monto_deposito)+parseFloat(this.monto_transferencia)+parseFloat(this.monto_otro)
+            //inicializamos un switch dependiendo el tipo de cambio de paqueteria
             switch(this.tipoCambio){
                 case 1 :
                     dataConfirm.cambio = this.cambio
@@ -377,39 +406,51 @@ export default {
 
                     break;
                 case 3:
-                    if(this.valores.length === 0){
-                        this.$emit('alerta',`Debe seleccionar un metodo de pago`)
+                    console.log('entrando 3')
+                    if(this.saldoRestante > 0){
+                        dataConfirm.saldoFavor = this.saldoRestante
+                        dataConfirm.cambio = this.cambio
+                        dataConfirm.newEstatus = this.newEstatus
+                        dataConfirm.success = true
+                        dataConfirm.monto = parseInt(this.paqueteria)
+                        dataConfirm.suma = 0
                     }else{
-                        if(this.cajas == 0 || this.cajas === ''){
-                            this.$emit('alerta',`Debe introducir cantidad de cajas`)
+                        if(this.valores.length === 0){
+                            this.$emit('alerta',`Debe seleccionar un metodo de pago`)
                         }else{
-                            if(parseFloat(this.paqueteria) > parseFloat(this.pagoResto)){
-                                this.$emit('alerta',`Debe agregar un monto de pago correcto`)
+                            if(this.cajas == 0 || this.cajas === ''){
+                                this.$emit('alerta',`Debe introducir cantidad de cajas`)
                             }else{
-                                if(suma < parseFloat(this.pagoResto)){
-                                    this.$emit('alerta',`Debe agregar los montos a los metodos de pago`)  
+                                if(suma > parseFloat(this.pagoResto)){
+                                    this.$emit('alerta',`Debe agregar un monto de pago correcto`)
                                 }else{
-                                        if(this.monto_deposito > 0 && this.banco_deposito === ''){
-                                            this.$emit('alerta','selecciona el banco para el deposito')  
-                                        }else{
-                                            if(this.monto_transferencia > 0 && this.banco_transferencia === ''){
-                                                this.$emit('alerta','selecciona el banco para la transferencia')  
+                                    if(suma < parseFloat(this.pagoResto)){
+                                        this.$emit('alerta',`Debe agregar los montos a los metodos de pago`)  
+                                    }else{
+                                            if(this.monto_deposito > 0 && this.banco_deposito === ''){
+                                                this.$emit('alerta','selecciona el banco para el deposito')  
                                             }else{
-                                                console.log(2,3)
-                                                dataConfirm.saldoFavor = suma - this.paqueteria
-                                                dataConfirm.cambio = this.cambio
-                                                dataConfirm.newEstatus = this.newEstatus
-                                                dataConfirm.success = true
-                                                dataConfirm.monto = suma
-                                                dataConfirm.suma = suma
+                                                if(this.monto_transferencia > 0 && this.banco_transferencia === ''){
+                                                    this.$emit('alerta','selecciona el banco para la transferencia')  
+                                                }else{
+                                                    console.log(2,3)
+                                                    dataConfirm.saldoFavor = suma - this.paqueteria
+                                                    dataConfirm.cambio = this.cambio
+                                                    dataConfirm.newEstatus = this.newEstatus
+                                                    dataConfirm.success = true
+                                                    dataConfirm.monto = suma
+                                                    dataConfirm.suma = suma
+                                                }
                                             }
                                         }
-                                    }
-                                }  
+                                    }  
+                            }
                         }
                     }
+                    
                     break;
                 case 4:
+                    console.log('entrando 4')
                     if(this.paqueteria === '' || parseFloat(this.paqueteria) === 0 || this.paqueteria == null){
                         this.$emit('alerta',`Debe introducir un monto en gasto de nueva paqueteria`)
                     }else{
@@ -464,16 +505,42 @@ export default {
                     break;
             }
 
-            return dataConfirm;
+            let Pagos = []
+            this.valores.forEach(item => {
+                let monto = 0
+                let banco = ''
+
+                if(item === 'Efectivo'){
+                    monto  = this.monto_efectivo
+                    banco  = 'efectivo'
+                }
+                if(item === 'Deposito'){
+                    monto = this.monto_deposito
+                    banco = this.banco_deposito
+                }
+                if(item === 'Transferencia'){
+                    monto = this.monto_transferencia
+                    banco = this.banco_transferencia
+                }
+                if( item === 'Otro'){
+                    monto = this.monto_otro
+                    banco = this.otro
+                }
+
+            Pagos.push({"metodo":item,"monto":monto,"banco":banco})
+
+        })
+
+        this.datos.metodos = Pagos
+
+        return dataConfirm;
         },
 
         async updateDataUser(){
 
-        
             const validate = this.validarUpdate()
 
             if(validate.success){
-                console.log(validate,'validado')
                 this.loading = true
                 this.datos.orden = this.orden
                 this.datos.banco = `${this.banco_deposito} ${this.banco_transferencia}`
@@ -482,8 +549,8 @@ export default {
                 this.datos.cajas = this.cajas
                 this.datos.suma = validate.suma
                 this.datos.saldoFavor = validate.saldoFavor
-                this.datos.metodos = this.valores.toString();
                 this.datos.envio = this.envio
+                this.datos.id_user = sessionStorage.getItem('id');
                 try
                 {
                     //this.$emit('updateStatus',this.newEstatus)
@@ -509,13 +576,15 @@ export default {
                //
             }
         }, 
-
+        //metodo que solo actualiza datos de paqueteria y datos personales
         async updateData(){
             try
             {
                 this.loading = true
                 this.datos.orden = this.orden
+                this.datos.id_user = sessionStorage.getItem('id');
                 const response = await axios.post(`/ventas/dataUsuario`,this.datos);
+                //const response = await axios.post(`http://localhost/supernova-almacen-api/ventas/dataUsuario`,this.datos);
                 if(response.status == 200 || response.status == 201){
                     this.getAllDetalleUsuario(this.orden)
                     this.historial.orden = this.orden
@@ -526,13 +595,12 @@ export default {
                     this.$emit('close');
                     this.updated = false
                 }
-                
             }catch(e)
             {
                 console.log(e)
             }
         },
-
+        //metodo que trae los datos personales del usuario segun orden
         async getAllDetalleUsuario(orden){
             this.loading = true
             try
@@ -544,13 +612,14 @@ export default {
                     this.editData = false
                     this.loading = false
                 }
-                
             }catch(e)
             {
                 console.log(e)
             }
         },
-
+        //metodo de verificacion de paqueteria,
+        //habilita areas de pago o no dependiendo de paqueteria actual
+        //y paqueteria escogida
         verificarPaqueteria(paqueteria){
             this.updated = true
 
@@ -559,13 +628,14 @@ export default {
             let filterPaqNew = this.paqueteriaType1.filter(item => item === paqueteria);
             let filterPaqOld = this.paqueteriaType1.filter(item => item === this.paqueteriaOld);
             
-            if(filterPaqNew.length === 0 && filterPaqOld.length === 0){
+            if((filterPaqNew.length === 0 && filterPaqOld.length === 0) || (this.paqueteriaOld === '')){
                 console.log('solo cambiamos paqueteria')
                 this.tipoCambio = 1
                 this.cambio = true
                 this.saldo = false
                 this.newEstatus = this.estatus
                 this.showPago = false
+                this.updated = false
             }else{
                 if(filterPaqOld.length > 0 && filterPaqNew.length === 0){
                         this.cambio = this.estatus === 'Pagado' ? true : false
@@ -576,12 +646,13 @@ export default {
                         console.log('saldo a favor , estatus cambia')
                 }else{
                     if(filterPaqOld.length === 0 && filterPaqNew.length > 0){
+                        console.log(this.estatus)
                         this.tipoCambio = 3
                         this.cambio = this.estatus === 'Pagado' ? true : false
                         this.newEstatus = 'Esperando por guia'
                         this.showPago = false
                         this.saldo = false
-                        console.log('agregar gastos de paqueteria, estatus cmbia',this.cambio)
+                        console.log('agregar gastos de paqueteria, estatus cambia',this.cambio)
                         this.showPago = true
                     }else{
                         if(filterPaqOld.length > 0 && filterPaqNew.length > 0){

@@ -3,10 +3,10 @@
 
         <v-dialog v-model="modal_alert" max-width="500">
             <v-card>
-                <v-card-title>
+                <v-card-title class="error">
                     <v-col cols="12" class="d-flex justify-space-between">
-                        <h4 class="error--text">{{title}} </h4>
-                        <v-btn icon color="error" @click="closeModalDelete()">
+                        <h4 class="white--text">{{title}} </h4>
+                        <v-btn icon color="white" @click="closeModalDelete()">
                             <v-icon>mdi-close</v-icon>
                         </v-btn>
                     </v-col>
@@ -32,8 +32,8 @@
                 <v-card elevation="0" class="px-3 py-3">
                     <v-row>
                         <v-col cols="12" class="text-right">
-                            <h2 class="primary--text">Saldo disponible: <span class="success--text">${{saldoCajaChica}}.00 </span> </h2>
-                            <p><i>Ultima actualizacion: {{fechaRecarga}} </i> </p>
+                            <h2 class="primary--text">Saldo disponible: <span class="success--text">${{parseInt(saldoCajaChica) | precio}} </span> </h2>
+                            <p><i>Ultima actualizacion: {{fechaRecarga | fechaFormat}} </i> </p>
                         </v-col>
                     </v-row>
                 </v-card> 
@@ -49,7 +49,9 @@
                     </v-card-title>
                     <v-row>
                         <v-col cols="12" sm="12" md="10" lg="8" class="mx-auto">
-                            <v-text-field type="number" outlined placeholder="$0.00" v-model="monto_salida" @keypress="soloNumeros($event)" label="Ingrese el monto"></v-text-field>
+                            <span>Monto:</span>
+                            <money class="mb-4" v-model="monto_salida" v-bind="money"  placeholder="0.00" ></money>
+                            <!-- <v-text-field type="number" outlined placeholder="$0.00" v-model="monto_salida" @keypress="soloNumeros($event)" label="Ingrese el monto"></v-text-field> -->
                             <v-textarea rows="3" outlined label="Describa el motivo" v-model="motivo_salida"  @keypress.enter="saveSalida()"></v-textarea>
                             <button class="btn-salida" @click="saveSalida()" >INGRESAR SALIDA</button>
                         </v-col>
@@ -61,7 +63,9 @@
                             </v-alert>
                         </v-col>
                         <v-col cols="12" sm="12" md="10" lg="8" class="mx-auto">
-                            <v-text-field type="number" outlined placeholder="$0.00" v-model="monto_deposito" @keypress="soloNumeros($event)" label="Ingrese el monto"></v-text-field>
+                            <span>Monto:</span>
+                            <money class="mb-4" v-model="monto_deposito" v-bind="money"  placeholder="0.00" ></money>
+                            <!-- <v-text-field type="number" outlined placeholder="$0.00" v-model="" @keypress="soloNumeros($event)" label="Ingrese el monto"></v-text-field> -->
                             <v-text-field type="text" outlined label="Token" v-model="token"></v-text-field>
                             <button class="btn-salida" @click="addDineroCajaChica()" >INGRESAR DINERO</button>
                         </v-col>
@@ -73,7 +77,7 @@
                     <v-card-title>
                     <v-icon class="mr-2" color="primary" large>mdi-cash-minus</v-icon>
                     Salidas
-                    <v-chip label color="error" class="ml-2">Gastos del dia: ${{totalGasto}}.00 </v-chip>
+                    <v-chip label color="error" class="ml-2">Gastos del dia: ${{totalGasto | precio}} </v-chip>
                     <v-spacer></v-spacer>
                     <v-spacer></v-spacer>
                     <v-spacer></v-spacer>
@@ -90,7 +94,7 @@
                     <span>{{ index + 1 }} </span>
                     </template>
                     <template v-slot:[`item.cant`]={item}>
-                        <v-chip label color="warning">${{item.monto}}.00</v-chip>
+                        <v-chip label color="warning">${{parseInt(item.monto) | precio}}.00</v-chip>
                     </template>
                     <template v-slot:[`item.actions`]="{ item }">
                     <v-tooltip bottom>
@@ -112,9 +116,9 @@
                 </v-data-table>
                 </v-card>
             </v-col>
-            <v-col cols="12">
+            <!-- <v-col cols="12">
                 <v-card>
-                    <!-- <Bar
+                    <Bar
                         :chart-options="chartOptions"
                         :chart-data="chartData"
                         :chart-id="chartId"
@@ -124,9 +128,9 @@
                         :styles="styles"
                         :width="width"
                         :height="height"
-                    /> -->
+                    />
                 </v-card>
-            </v-col>
+            </v-col> -->
         </v-row>
     </v-container>
 </template>
@@ -134,6 +138,7 @@
 <script>
 import axios from 'axios'
 import {mapMutations} from 'vuex'
+import {Money} from 'v-money'
 // import { Bar } from 'vue-chartjs/legacy'
 // import {
 //   Chart as ChartJS,
@@ -147,8 +152,9 @@ import {mapMutations} from 'vuex'
 
 // ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 export default {
+    components:{Money},
     // components: {
-    //     Bar
+     //  Bar
     // },
     // props: {
     //     chartId: {
@@ -225,6 +231,15 @@ export default {
             class: "primary white--text px-0 mx-0",
             },
         ],
+
+        money: {
+            decimal: '.',
+            thousands: ',',
+            prefix: '$ ',
+            suffix: '',
+            precision: 2,
+            masked: false
+        }
     }
     },
 
@@ -235,20 +250,21 @@ export default {
     },
 
     computed:{
+        //variable computada para fecha maxima , restringir input date de busqueda
         fechaMax(){
-        const d   = new Date()
-        let day   = d.getDate()
-        let month = d.getMonth()
-        let year  = d.getFullYear()
+            const d   = new Date()
+            let day   = d.getDate()
+            let month = d.getMonth()
+            let year  = d.getFullYear()
 
-        month +=1;
+            month +=1;
 
-        day   = ('0' + day).slice(-2);
-        month = ('0' + month).slice(-2);
+            day   = ('0' + day).slice(-2);
+            month = ('0' + month).slice(-2);
 
-        return `${year}-${month}-${day}`
+            return `${year}-${month}-${day}`
         },
-
+        //variable para calcular el total de los gastos
         totalGasto(){
             const acumular = (acumulador,salida) => acumulador + parseFloat(salida.monto)
             return this.salidas.reduce(acumular,0)
@@ -256,8 +272,39 @@ export default {
     },
 
     watch:{
+        //watch que escucha algun cambio en la variable fecha y ejecuta la funcion de busqueda
         fecha(value){
             this.searchFechaSalidas(value)
+        }
+    },
+
+    //filtro para precios o cantidades, representa el monto en unidad inglesa ejemplo : 1,000
+    filters:{
+        precio(value) {
+                return value.toLocaleString('en');
+        },
+
+        //filtro de fechas para mostrar fechas formateadas
+        fechaFormat(value){
+            let meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            let date = new Date(value);
+            let fecha = ''
+            let day = date.getDate();
+            if(isNaN(day)){
+                fecha = 'Aun no se registra'
+            }else{
+                let day = date.getDate();
+                day = day < 10 ? `0${day}` : day
+                let mes = date.getMonth();
+                let year = date.getFullYear();
+                let hora = date.getHours();
+                hora = hora < 10 ? `0${hora}` : hora
+                let minutos = date.getMinutes() < 10 ? `0${date.getMinutes( )}` : date.getMinutes()
+
+                fecha = `${day} ${meses[mes]} ${year} ${hora}:${minutos}` 
+            }
+            
+            return  fecha;
         }
     },
 
@@ -287,13 +334,14 @@ export default {
 
         ...mapMutations('notification',['setActiveModal']),
 
+        //metodo que solo nos permite introducir numeros en los campos de texto
         soloNumeros(e){
             var key = window.event ? e.which : e.keyCode;
             if ((key < 48 && key != 46) || (key > 57 && key !=46) ) {
                 e.preventDefault();
             }
         },
-
+        //funcion que trae todos las salidas de caja de ese dia
         async getAllCajaChica(){
             try
             {
@@ -306,7 +354,7 @@ export default {
                 console.log(e)
             }
         },
-
+        //funcion para traer las salidas de una fecha especifiva
         async searchFechaSalidas(value){
             try
             {
@@ -320,6 +368,7 @@ export default {
             }
         },
 
+        /**/ 
         async searchFecha(value){
             let monto = 0;
             try
@@ -336,7 +385,7 @@ export default {
                 console.log(e)
             }
         },
-
+        //funcion que trae el monto disponible en caja chica
         async getSaldoCajaChica(){
             try
             {
@@ -350,6 +399,7 @@ export default {
                 console.log(e)
             }
         },
+        //funcion que guarda una nueva salida
         async saveSalida(){
             if(this.monto_salida === '' || this.monto_salida === ''){
                 this.title = 'Verificar'
@@ -372,7 +422,7 @@ export default {
             }
             
         },
-
+        //funcion para agregar dinero a la caja chica
         async addDineroCajaChica(){
             if(this.monto_deposito === '' || this.token === ''){
                 this.title = 'Verificar'
@@ -403,7 +453,7 @@ export default {
             }
             
         },
-
+        //metodo para confirmar el borrado de un registro
         confirmDelete(item){
             this.id_delete = item.id
             this.monto_delete = parseFloat(item.monto)
@@ -413,6 +463,7 @@ export default {
             this.modal_alert = true
         },
 
+        //funcion que elemina un registro
         async deleteSalida(){
             try
             {
@@ -428,7 +479,7 @@ export default {
                 console.log(e)
             }
         },
-
+        //metodo que cierra el modal delete
         closeModalDelete(){
             this.id_delete = null
             this.modal_alert = false
@@ -452,5 +503,15 @@ export default {
             background-color: #133769;
         }
     }
+
+    .v-money{
+        width: 100%;
+        border: 1px solid #d3d3d3;
+        border-radius: 5px;
+        padding: 11px;
+        height: 55px;
+        box-sizing: border-box;
+        outline-color: #3f51b5;
+    } 
     
 </style>

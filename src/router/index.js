@@ -17,16 +17,6 @@ const router = new Router({
                 import ('../view/ventas-login.vue'),
         },
         {
-            path: '/home',
-            name: 'home',
-            meta: {
-                layout: 'dashboard-layout',
-                auth:true
-            },
-            component: () =>
-                import ('../view/ventas-home.vue'),
-        },
-        {
             path: '/ventas/admin',
             name: 'ventasAdmin',
             meta: {
@@ -36,6 +26,10 @@ const router = new Router({
             component: () =>
                 import ('../view/ventas-admin.vue'),
         },
+        {
+            path:'/ventas/client/:id',name:'clientDetail',component: () => import ('../view/admin/admin-cliente-detail.vue') 
+        },
+        
         {
             path: '/pedidos',
             name: 'ventasPedidos',
@@ -85,15 +79,6 @@ const router = new Router({
             component:()=> import ('../view/ventas-credito.vue'),
         },
         {
-            path:'/buscar',
-            name:'ventasBuscar',
-            meta:{
-                layout:'dashboard-layout',
-                auth:true
-            },
-            component:()=> import ('../view/ventas-buscar.vue'),
-        },
-        {
             path:'/salidas',
             name:'ventasSalidas',
             meta:{
@@ -101,6 +86,15 @@ const router = new Router({
                 auth:true
             },
             component:()=> import ('../view/ventas-salidas.vue'),
+        },
+        {
+            path:'/buscar',
+            name:'ventasBuscar',
+            meta:{
+                layout:'dashboard-layout',
+                auth:true
+            },
+            component:()=> import ('../view/ventas-buscar-orden.vue'),
         },
         {
             path:'/cajachica',
@@ -138,6 +132,16 @@ const router = new Router({
             },
             component: () =>
                 import ('../view/ventas-ofertas.vue'),
+        },
+        {
+            path: '/carritoCompras',
+            name: 'carritoCompras',
+            meta: {
+                layout: 'dashboard-layout',
+                auth:true
+            },
+            component: () =>
+                import ('../view/ventas-carrito-compras.vue'),
         },
 
 

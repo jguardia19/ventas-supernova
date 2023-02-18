@@ -15,13 +15,13 @@
             </v-card>
         </v-dialog>
 
-        <v-dialog v-model="modal_pago" max-width="950">
+        <v-dialog v-model="modal_pago" max-width="1050">
             <v-card class="card-pay">
                 <v-card-title>
                     <v-col cols="12" class="d-flex justify-space-between">
                         <span class="text--h5 primary--text mr-2">{{datos.nombres}} </span>
                         <v-chip color="success" label>Orden: {{datos.orden}} </v-chip>
-                        <span class="success--text text--h5">Total pedido: ${{datos.total}} </span>
+                        <span class="success--text text--h5">Total pedido: ${{parseInt(datos.total)  | precio}}.00 </span>
                     </v-col>
                 </v-card-title>
                 <v-card-text>
@@ -50,7 +50,8 @@
                                                         value="efectivo"
                                                         v-model="metodoPago"
                                                         ></v-checkbox>
-                                                        <v-text-field outlined type="text"  @keypress="soloNumeros($event)" v-model="monto_efectivo" :disabled="showEfectivo" placeholder="0.00"></v-text-field>
+                                                        <money v-model="monto_efectivo" v-bind="money" :disabled="showEfectivo" placeholder="0.00"></money>
+                                                        <!-- <v-text-field outlined type="text"  @keypress="soloNumeros($event)" v-model="monto_efectivo" :disabled="showEfectivo" placeholder="0.00"></v-text-field> -->
                                                     </v-col>
                                                 </v-row>
                                             </v-expansion-panel-content>
@@ -62,21 +63,29 @@
                                             <v-expansion-panel-content>
                                                 <v-row class="mt-2">
                                                     <v-col cols="12" class="d-flex justify-space-between" >
-                                                            <v-checkbox
-                                                            color="primary"
-                                                            v-model="metodoPago"
-                                                            value="transferencia"
-                                                            ></v-checkbox>
-                                                            <v-text-field outlined type="text"  @keypress="soloNumeros($event)"  v-model="monto_transferencia" class="mr-2" placeholder="0.00" :disabled="showTransferencia" ></v-text-field>
-                                                            <v-autocomplete 
-                                                            label="Seleccione el banco"
-                                                            outlined 
-                                                            :items="banks"
-                                                            item-text="nombreBank"
-                                                            item-value="codigo"
-                                                            :disabled="showTransferencia"
-                                                            v-model="banco_transferencia"
-                                                            ></v-autocomplete>
+                                                        <v-row>
+                                                            <v-col cols="2">
+                                                                <v-checkbox
+                                                                color="primary"
+                                                                v-model="metodoPago"
+                                                                value="transferencia"
+                                                                ></v-checkbox>
+                                                            </v-col>
+                                                            <v-col cols="5">
+                                                                <money v-model="monto_transferencia" v-bind="money" :disabled="showTransferencia" placeholder="0.00"></money>                                                                
+                                                            </v-col>
+                                                            <v-col cols="5">
+                                                                <v-autocomplete 
+                                                                label="Seleccione el banco"
+                                                                outlined 
+                                                                :items="banks"
+                                                                item-text="nombreBank"
+                                                                item-value="codigo"
+                                                                :disabled="showTransferencia"
+                                                                v-model="banco_transferencia"
+                                                                ></v-autocomplete>
+                                                            </v-col>
+                                                        </v-row>
                                                     </v-col>
                                                 </v-row>
                                             </v-expansion-panel-content>
@@ -88,21 +97,29 @@
                                             <v-expansion-panel-content>
                                                 <v-row class="mt-2">
                                                     <v-col cols="12" class="d-flex">
-                                                            <v-checkbox
-                                                            color="primary"
-                                                            v-model="metodoPago"
-                                                            value="deposito"
-                                                            ></v-checkbox>
-                                                            <v-text-field outlined type="text"  @keypress="soloNumeros($event)" v-model="monto_deposito" class="mr-2" placeholder="0.00" :disabled="showDeposito"></v-text-field>
-                                                            <v-autocomplete 
-                                                            label="Seleccione el banco"
-                                                            outlined 
-                                                            item-text="nombreBank"
-                                                            item-value="codigo"
-                                                            :items="banks"
-                                                            v-model="banco_deposito"
-                                                            :disabled="showDeposito"
-                                                            ></v-autocomplete>
+                                                        <v-row>
+                                                            <v-col cols="2">
+                                                                <v-checkbox
+                                                                color="primary"
+                                                                v-model="metodoPago"
+                                                                value="deposito"
+                                                                ></v-checkbox>
+                                                            </v-col>
+                                                            <v-col cols="5">
+                                                                <money v-model="monto_deposito" v-bind="money" :disabled="showDeposito" placeholder="0.00"></money>
+                                                            </v-col>
+                                                            <v-col cols="5">
+                                                                <v-autocomplete 
+                                                                label="Seleccione el banco"
+                                                                outlined 
+                                                                item-text="nombreBank"
+                                                                item-value="codigo"
+                                                                :items="banks"
+                                                                v-model="banco_deposito"
+                                                                :disabled="showDeposito"
+                                                                ></v-autocomplete>
+                                                            </v-col>
+                                                        </v-row> 
                                                     </v-col>
                                                 </v-row>
                                             </v-expansion-panel-content>
@@ -114,13 +131,21 @@
                                             <v-expansion-panel-content>
                                                 <v-row class="mt-2">
                                                     <v-col cols="12" class="d-flex">
-                                                            <v-checkbox
-                                                            color="primary"
-                                                            v-model="metodoPago"
-                                                            value="otro"
-                                                            ></v-checkbox>
-                                                            <v-text-field outlined class="mr-2" @keypress="soloNumeros($event)" v-model="monto_otro" type="text" placeholder="0.00" :disabled="showOtro"></v-text-field>
-                                                            <v-textarea rows="1" outlined label="Nota" :disabled="showOtro"> </v-textarea>
+                                                        <v-row>
+                                                            <v-col cols="2">
+                                                                <v-checkbox
+                                                                color="primary"
+                                                                v-model="metodoPago"
+                                                                value="otro"
+                                                                ></v-checkbox>
+                                                            </v-col>
+                                                            <v-col cols="5">
+                                                                <money v-model="monto_otro" v-bind="money" :disabled="showOtro" placeholder="0.00"></money>
+                                                            </v-col>
+                                                            <v-col cols="5">
+                                                                <v-textarea rows="1" outlined label="Nota" :disabled="showOtro"> </v-textarea>
+                                                            </v-col>
+                                                        </v-row>          
                                                     </v-col>
                                                 </v-row>
                                             </v-expansion-panel-content>
@@ -132,15 +157,15 @@
                                             <v-row>
                                             <v-col cols="6" class="text-center row-data">
                                                 <v-chip class="mb-2" label color="white"><v-icon class="mr-2" color="primary">mdi-truck-fast</v-icon> <span class="indigo--text">Paqueteria</span> </v-chip>
-                                                <v-text-field outlined @keypress="soloNumeros($event)" v-model="paqueteria" placeholder="0.00" ></v-text-field>
+                                                <money v-model="paqueteria" v-bind="money"  placeholder="0.00"></money>
                                             </v-col>
                                             <v-col cols="6" class="text-center row-data">
                                                 <v-chip class="mb-2" label color="white"><v-icon class="mr-2" color="primary">mdi-cart-percent</v-icon> <span class="indigo--text">IVA %</span>   </v-chip>
-                                                <v-text-field outlined  @keypress="soloNumeros($event)" v-model="iva" placeholder="0.00"></v-text-field>
+                                                <money v-model="iva" v-bind="money"  placeholder="0.00"></money>
                                             </v-col>
-                                            <v-col cols="6" class="text-center row-data">
+                                            <v-col cols="6" class="text-center row-data mt-8" v-if="saldoPendiente > 0">
                                                 <v-chip class="mb-2" label color="white"><v-icon class="mr-2" color="primary">mdi-cash-refund</v-icon><span class="indigo--text">Saldo a favor</span> </v-chip>
-                                                <v-text-field outlined  @keypress="soloNumeros($event)" v-model="saldoPendiente" placeholder="0.00" :disabled="true"></v-text-field>
+                                                <money v-model="saldoPendiente" v-bind="money"  placeholder="0.00" disabled></money>
                                             </v-col>
                                         </v-row>
                                     </v-card>
@@ -150,15 +175,20 @@
                 <v-card-actions>
                         <v-col cols="4">
                             <v-chip outlined label color="primary">
-                                <span class="text--h5 primary--text"> Total a pagar: ${{montoPagar}} </span>
+                                <span class="text--h5 primary--text"> Total a pagar: ${{montoPagar | precio}} </span>
                             </v-chip>
                         </v-col>
                         <v-col cols="8" class="text-right">
                             <v-btn text color="error" class="mr-2" @click="closeModalPago()">cancelar</v-btn>
                             <v-btn class="primary" :disabled="disabledProcesar" @click="procesarPago()"> 
-                                <v-icon>mdi-credit-card-outline</v-icon>
-                                ${{montoDepositado}}
-                                procesar
+                                <v-icon v-if="!loading">mdi-credit-card-outline</v-icon>
+                                <span v-if="!loading" >${{montoDepositado | precio}} procesar</span> 
+                                <v-progress-circular
+                                    indeterminate
+                                    color="primary"
+                                    v-if="loading"
+                                    ></v-progress-circular>
+                                <span v-if="loading">Por favor espere</span>
                             </v-btn>
                         </v-col> 
                 </v-card-actions>
@@ -172,6 +202,8 @@
                         Pedidos Creditos
                         <v-spacer></v-spacer>
                         <v-spacer></v-spacer>
+                        <v-spacer></v-spacer>
+                        <v-text-field outlined label="Buscar Folio" append-icon="mdi-magnify" v-model="search" > </v-text-field>
                     </v-card-title>
                     <v-data-table
                         :headers="header"
@@ -198,7 +230,7 @@
                 <template v-slot:[`item.total`]="{ item }">
                     <v-chip color="primary" label>
                         <span class="px-2 py-2 white--text"
-                            >${{item.total}}
+                            >${{parseInt(item.total) | precio}}.00
                         </span>
                     </v-chip>
                 
@@ -229,7 +261,10 @@
 
 <script>
 import axios from 'axios'
+import {mapMutations} from 'vuex'
+import {Money} from 'v-money'
 export default {
+    components:{ Money },
     data(){
         return{
             page: 1,
@@ -243,6 +278,8 @@ export default {
             modal_pago:false,
             datos:{},
 
+            loading:false,
+
             header: [
             {
                 text: "#",
@@ -251,14 +288,14 @@ export default {
                 class: "primary white--text px-0 mx-0",
             },
             {
-                text: "Cliente",
+                text: "Nombre del Cliente",
                 value: "nombres",
                 align: "center",
                 class: "primary white--text px-0 mx-0",
             },
             {
-                text: "Orden",
-                value: "Orden",
+                text: "Orden (Folio)",
+                value: "orden",
                 align: "center",
                 class: "primary white--text px-0 mx-0",
             },
@@ -269,13 +306,13 @@ export default {
                 class: "primary white--text px-0 mx-0",
             },
             {
-                text: "Cantidad de productos",
+                text: "Cantidad de productos (pz)",
                 value: "cant",
                 align: "center",
                 class: "primary white--text px-0 mx-0",
             },
             {
-                text: "Total de ventas",
+                text: "Total de ventas ($)",
                 value: "total",
                 align: "center",
                 class: "primary white--text px-0 mx-0",
@@ -327,15 +364,24 @@ export default {
                 title:'',
                 texto:''
             },
+            money: {
+                decimal: '.',
+                thousands: ',',
+                prefix: '$ ',
+                suffix: '',
+                precision: 2,
+                masked: false
+            },
     }
 },
 
 mounted(){
+    this.setActiveOverlay()
     this.getAllPedidosCredito()
 },
 
 watch:{
-
+        //watch que escucha el metodo de pago para habilitar los distintos metodos de pago
         metodoPago(value){
 
             let filterEfectivo = value.filter(item => item === 'efectivo')
@@ -375,30 +421,31 @@ watch:{
             }
             
         },
+        //iguala el monto a 0 si esta vacio para realizar operaciones aritmeticas
         monto_efectivo(value){
             this.monto_efectivo = value === '' ? 0 : parseFloat(value)
         },
-
+         //iguala el monto a 0 si esta vacio para realizar operaciones aritmeticas
         monto_deposito(value){
             this.monto_deposito = value === '' ? 0 : parseFloat(value)
         },
-
+         //iguala el monto a 0 si esta vacio para realizar operaciones aritmeticas
         monto_transferencia(value){
             this.monto_transferencia = value === ''  ? 0 : parseFloat(value)
         },
-
+         //iguala el monto a 0 si esta vacio para realizar operaciones aritmeticas
         monto_otro(value){
             this.monto_otro = value=== '' ? 0 : parseFloat(value)
         },
-
+         //iguala el monto a 0 si esta vacio para realizar operaciones aritmeticas
         iva(value){
             this.iva =  value === '' ? 0 : parseFloat(value)
         },
-
+         //iguala el monto a 0 si esta vacio para realizar operaciones aritmeticas
         paqueteria(value){
             this.paqueteria = value === '' ? 0 : parseFloat(value)
         },
-
+        //watch para escuchar el total y realizar operaciones
         Total(value){
             let resta = value - this.suma
             this.disabledProcesar =  resta >= (parseFloat(this.datos.total)+this.suma) ? false : true
@@ -407,53 +454,64 @@ watch:{
 }, 
 
 computed:{
+        //variable computada para sumar el total de los montos
         Total(){
             return   this.monto_efectivo + this.monto_deposito + this.monto_transferencia  + this.monto_otro + this.iva + this.paqueteria
         },
-
+        // variable que retorna la suma del iva y la paqueteria
         suma(){
             return this.iva + this.paqueteria
         },
-
+        //variable del monto total a pagar sumando la variable suma y el total
         montoPagar(){
             return parseFloat(this.datos.total) + this.suma
         },
-
+        //variable que representa la suma de todos los montos menos paqueteria e iva
         montoDepositado(){
             return this.monto_efectivo + this.monto_deposito + this.monto_transferencia  + this.monto_otro
         },
-
+        //variable que mostrara si quedara un saldo pendiente al cliente
         saldoPendiente(){
             return (this.monto_efectivo + this.monto_deposito + this.monto_transferencia  + this.monto_otro) - (parseFloat(this.datos.total)+this.iva+this.paqueteria) ;
         }
     },
 
+filters:{
+    precio(value) {
+            return value.toLocaleString('en');
+    },
+},
 methods:{
-    
+
+    ...mapMutations('overlay',['setActiveOverlay','setDesactiveOverlay']),
+
+    //metodo que solo nos permite introducir numeros en los campos de texto
     soloNumeros(e){
             var key = window.event ? e.which : e.keyCode;
             if ((key < 48 && key != 46) || (key > 57 && key !=46) ) {
                 e.preventDefault();
             }
     },
-
+    //funcion que nos trae todos los pedidos en credito
     async getAllPedidosCredito(){
         try
         {
             const response = await axios.get(`/ventas/pedidosCredito`)
             console.log(response.data)
             this.pedidosCredito = response.data
+            this.setDesactiveOverlay()
         }catch(e)
         {
             console.log(e)
         }
     },
-
+    //agregar los datos , y aperturar modal para pago
     pagarPedido(item){
         this.datos = Object.assign({}, item)
         this.modal_pago = true
     },
 
+    //validar proceso para pago
     validateProcess(){
             let error = {count:0,Error:null} ;
 
@@ -473,17 +531,50 @@ methods:{
         return error;
     },
 
+    //asignar valores para procesar el pago
     asignedValores(){
         this.datos.paqueteria = this.paqueteria
         this.datos.iva = this.iva
         this.datos.saldo = this.saldoPendiente
         this.datos.monto = this.montoDepositado
         this.datos.efectivo = this.efectivo
-        this.datos.banco = `${this.banco_deposito} ${this.banco_transferencia}`
-        this.datos.metodos = this.metodoPago.toString()
+        // this.datos.banco = `${this.banco_deposito} ${this.banco_transferencia}`
+        // this.datos.metodos = this.metodoPago.toString()
+
+        let Pagos = []
+        this.metodoPago.forEach(item => {
+                let monto = 0
+                let banco = ''
+
+                if(item === 'efectivo'){
+                    monto  = this.monto_efectivo
+                    banco  = 'efectivo'
+                }
+                if(item === 'deposito'){
+                    monto = this.monto_deposito
+                    banco = this.banco_deposito
+                }
+                if(item === 'transferencia'){
+                    monto = this.monto_transferencia
+                    banco = this.banco_transferencia
+                }
+                if( item === 'otro'){
+                    monto = this.monto_otro
+                    banco = item
+                }
+
+            Pagos.push({"metodo":item,"monto":monto,"banco":banco})
+
+        })
+
+        this.datos.metodos = Pagos
     },
 
+
+    //funcion para procesar el pago 
     async procesarPago(){
+        this.loading = true
+        this.disabledProcesar = true
         const Error = this.validateProcess()
         if(Error.count > 0){
             this.alert = true 
@@ -492,12 +583,16 @@ methods:{
                 setTimeout(() => {
                     this.alert = false
                 }, 2000);
+                this.loading = false
+                this.disabledProcesar = false
             }
             if(Error.Error === 2){
                 this.mensaje = "Debes seleccionar banco para el monto del deposito"
                 setTimeout(() => {
                     this.alert = false
                 }, 2000);
+                this.loading = false
+                this.disabledProcesar = false
             }
         }else{
             this.asignedValores()
@@ -514,6 +609,8 @@ methods:{
                     setTimeout(() => {
                         this.modal_confirm = false
                     }, 3000);
+                    this.loading = false
+                    this.disabledProcesar = false
                     this.getAllPedidosCredito()
                     this.closeModalPago()
                 }
@@ -528,11 +625,13 @@ methods:{
                 setTimeout(() => {
                     this.modal_confirm = false
                 }, 3000);
+                this.loading = false
+                this.disabledProcesar = false
             }
         }
 
     },
-    
+    //metodo para cerrar modal y inicializar datos
     closeModalPago(){
         this.datos = {}
         this.metodoPago = []
@@ -558,6 +657,7 @@ methods:{
     .card-pay
         position: relative
         border:1px solid #FFF !important
+        margin-bottom: 0px !important
         .btn-close
             position: absolute
             right: 5px
@@ -576,7 +676,16 @@ methods:{
             margin-bottom: 5px !important
         &__text
             font-size: 16px !important
-        
+
+    
+    .v-money
+        width: 100%
+        border: 1px solid #d3d3d3
+        border-radius: 5px
+        padding: 11px
+        height: 55px
+        box-sizing: border-box
+        outline-color: #3f51b5 
 
     .fade-enter-from,   
     .fade-leave-to

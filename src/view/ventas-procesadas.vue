@@ -1,9 +1,11 @@
 <template>
   <v-container class="mt-3">
+    <!-- componente que se activa de manera dinamica para cargar 
+    datos personales y editarlos -->
     <transition 
-            enter-active-class="animate__animated animate__fadeInUp"
-            leave-active-class="animate__animated animate__fadeOutUp"
-            mode="out-in">
+      enter-active-class="animate__animated animate__fadeInUp"
+      leave-active-class="animate__animated animate__fadeOutUp"
+      mode="out-in">
             <component 
             :is='component'  
             :orden="Orden" 
@@ -13,9 +15,31 @@
             @updateStatus="modificarEstatus"
             @updatedHistorial="actualizarHistorial"
             @alerta="alertConfirm"
-            ></component>
+          ></component>
+
     </transition>
 
+    <!-- modal que se muestra cuando no se encontro registros -->
+    <v-dialog max-width="500" v-model="modal_noEncontrado">
+        <v-card>
+            <v-card-title class="error">
+                <v-col cols="12" class="d-flex justify-space-between white--text">
+                    <h3>{{ mensaje_modal }} </h3>
+                </v-col>
+            </v-card-title>
+            <v-card-text>
+                <v-row class="mt-3">
+                    <v-col cols="12" class="text-center">
+                        <v-icon color="error" large>
+                            mdi-file-document-remove
+                        </v-icon>
+                    </v-col>
+                </v-row>
+            </v-card-text>
+        </v-card>
+    </v-dialog>
+
+    <!-- modal para mostrar alertas de validaciones al actualizar datos -->
     <v-dialog v-model="modal_confirm" max-width="400">
             <v-card class="card_confirm">
                 <v-card-text>
@@ -49,36 +73,38 @@
               <v-btn class="primary btn-search" @click="getAllPedidoOrden(orden)">Buscar folio</v-btn>
             </v-col>
             <v-col cols="12" sm="6" md="4" lg="3" class="d-flex">
-                
+
                 <v-dialog
-                ref="dialog"
-                v-model="modal"
-                :return-value.sync="fecha_pedidos"
-                persistent
-                width="290px"
-                >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="fecha_pedidos"
-                    label="Fecha de pedidos"
-                    prepend-icon="mdi-calendar"
-                    readonly
-                    outlined
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
-                </template>
-                <v-date-picker v-model="fecha_pedidos" scrollable  :max="fechaMax">
-                  <v-spacer></v-spacer>
-                  <v-btn text color="error" @click="modal = false">
-                    Cancelar
-                  </v-btn>
-                  <v-btn text color="primary" @click="$refs.dialog.save(fecha_pedidos)">
-                    Elegir
-                  </v-btn>
-                </v-date-picker>
-              </v-dialog>
-              <v-btn class="primary btn-search" @click="getAllPedidosDate(fecha_pedidos)">Buscar</v-btn>
+                    ref="dialog"
+                    v-model="modal"
+                    :return-value.sync="fecha_pedidos"
+                    persistent
+                    width="290px"
+                    >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="fecha_pedidos"
+                        label="Fecha de pedidos"
+                        prepend-icon="mdi-calendar"
+                        readonly
+                        outlined
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker v-model="fecha_pedidos" scrollable  :max="fechaMax">
+                      <v-spacer></v-spacer>
+                      <v-btn text color="error" @click="modal = false">
+                        Cancelar
+                      </v-btn>
+                      <!-- <v-btn text color="primary" @click="$refs.dialog.save(fecha_pedidos)"> -->
+                        <v-btn text color="primary" @click="getAllPedidosDate()">
+                        Elegir
+                      </v-btn>
+                    </v-date-picker>
+                </v-dialog>
+                <v-btn class="primary btn-search" @click="getAllPedidosDate()">Buscar</v-btn>
+
             </v-col>
             <v-col cols="12" sm="6" md="4" lg="6" class="d-flex justify-space-end">
                 <v-card class="px-3 py-3" elevation="2" width="800" v-if="history.fullName != ''">
@@ -109,6 +135,7 @@
           </v-row>
         </v-card>
       </v-col>
+
       <v-col cols="12">
         <v-card class="px-5 py-3" elevation="0">
           <v-card-title>
@@ -117,6 +144,7 @@
             <v-spacer></v-spacer>
             <v-spacer></v-spacer>
           </v-card-title>
+
           <v-data-table
             :headers="header"
             :items="pedidos"
@@ -182,6 +210,7 @@
               </v-tooltip>
             </template>
           </v-data-table>
+
         </v-card>
       </v-col>
     </v-row>
@@ -219,6 +248,8 @@ export default {
       },
 
       modal_confirm:false,
+      modal_noEncontrado:false,
+      mensaje_modal:'',
       modal_confirm_data:{
         status:'warning',
         icon:'mdi-alert',
@@ -234,13 +265,13 @@ export default {
           class: "primary white--text px-0 mx-0",
         },
         {
-          text: "Cliente",
+          text: "Nombre del Cliente",
           value: "nombres",
           align: "center",
           class: "primary white--text px-0 mx-0",
         },
         {
-          text: "Orden",
+          text: "Orden (folio)",
           value: "Orden",
           align: "center",
           class: "primary white--text px-0 mx-0",
@@ -252,19 +283,19 @@ export default {
           class: "primary white--text px-0 mx-0",
         },
         {
-          text: "Cantidad de productos",
+          text: "Cantidad de productos (pz)",
           value: "cant",
           align: "center",
           class: "primary white--text px-0 mx-0",
         },
         {
-          text: "Total de ventas",
+          text: "Total de ventas ($)",
           value: "total",
           align: "center",
           class: "primary white--text px-0 mx-0",
         },
         {
-          text: "Fecha",
+          text: "Fecha de procesado",
           value: "fecha",
           align: "center",
           class: "primary white--text px-0 mx-0",
@@ -280,9 +311,11 @@ export default {
   },
 
   mounted() {
+    //cargar pedidos procesados
     this.setActiveOverlay()
     this.getAllPedidosPagados();
 
+    //verificar conexion de internet test
     if(navigator.onLine) {
       console.log('hay internet')
     } else {
@@ -292,6 +325,7 @@ export default {
   }, 
 
   computed:{
+    //variable computada para fecha maxima
     fechaMax(){
       const d   = new Date()
       let day   = d.getDate()
@@ -299,13 +333,12 @@ export default {
       let year  = d.getFullYear()
 
       month +=1;
-
       day   = ('0' + day).slice(-2);
       month = ('0' + month).slice(-2);
-
       return `${year}-${month}-${day}`
     },
 
+    //avatar de imagen de ultimo registro
     avatar(){
       return this.history.fullName[0]
     }
@@ -315,134 +348,145 @@ export default {
 
     ...mapMutations('overlay',['setActiveOverlay','setDesactiveOverlay']),
 
-    save(){
-
-    },
-
+    //metodo que trae todos los pedidos procesados en la fecha actual
     async getAllPedidosPagados() {
         this.closeViewData()
         try {
-        const response = await axios.get(
-            `/ventas/pedidosProcesados`
-        );
-        console.log(response.data);
-        if(response.status == 200){
-            if(response.data.status == 401){
-              console.log(response.data.mensaje)
-            }else{
+        const response = await axios.get(`/ventas/pedidosProcesados`);
+          console.log(response.data);
+          if(response.status == 200){
               this.pedidos = response.data;
-            }
-            this.setDesactiveOverlay()
-        }
-        
+              this.setDesactiveOverlay()
+          }
         } catch (e) {
         console.log(e);
         }
     },
-
-    async getAllPedidosDate(fecha_pedidos) {
+    
+    //metodo que trae los pedidos procesados segun fecha
+    async getAllPedidosDate() {
+        this.$refs.dialog.save(this.fecha_pedidos)
+        this.modal = false
+        let fecha_pedidos = this.fecha_pedidos
         this.closeViewData()
         this.setActiveOverlay()
         try {
-            const response = await axios.get(
-            `http://localhost/supernova-almacen-api/ventas/pedidosProcesados?fecha=${fecha_pedidos}`
-        );
-        if(response.status == 200){
-          if(response.data.status == 401){
-              console.log(response.data.mensaje)
-            }else{
-              this.pedidos = response.data;
-            }
-            this.setDesactiveOverlay()   
-        }
-        }catch (e) {
-        console.log(e);
-        }
-    },
+        const response = await axios.get(`/ventas/pedidosProcesados?fecha=${fecha_pedidos}`);
+          if(response.status == 200){
+            
+                this.pedidos = response.data
 
-    async getAllReport() {
-        this.closeViewData()
-        let date = new Date();
-        let day = date.getDate();
-        let moth = date.getMonth()+1;
-        let year = date.getFullYear();
-        console.log(day,moth,year)
-
-
-        let datos = [];
-        try {
-            for(var i =0;i<7;i++){
-                let fecha = ''; 
-                if((day-i) < 10){
-                    fecha = `${year}-${moth}-0${day-i}`;
-                }else{
-                    fecha = `${year}-${moth}-${day-i}`;  
+                if(this.pedidos.length === 0){
+                  this.mensaje_modal = 'No se encontraron resultados'
+                  this.modal_noEncontrado = true
+                  setTimeout(() => {
+                      this.mensaje_modal = ''
+                      this.modal_noEncontrado = false
+                  }, 3000);
                 }
-                
-                const response = await axios.get(`http://localhost/supernova-almacen-api//ventas/pedidosProcesados?fecha=${fecha}`);
-                datos.push(response.data)
-            }
-
-            console.log(datos)
+              this.setDesactiveOverlay()   
+          }
         }catch (e) {
-        console.log(e);
+          console.log(e);
         }
     },
 
+    // async getAllReport() {
+    //     this.closeViewData()
+    //     let date = new Date();
+    //     let day = date.getDate();
+    //     let moth = date.getMonth()+1;
+    //     let year = date.getFullYear();
+    //     console.log(day,moth,year)
 
+
+    //     let datos = [];
+    //     try {
+    //         for(var i =0;i<7;i++){
+    //             let fecha = ''; 
+    //             if((day-i) < 10){
+    //                 fecha = `${year}-${moth}-0${day-i}`;
+    //             }else{
+    //                 fecha = `${year}-${moth}-${day-i}`;  
+    //             }
+                
+    //             const response = await axios.get(`http://localhost/supernova-almacen-api//ventas/pedidosProcesados?fecha=${fecha}`);
+    //             datos.push(response.data)
+    //         }
+
+    //         console.log(datos)
+    //     }catch (e) {
+    //     console.log(e);
+    //     }
+    // },
+
+    //metodo que trae todos los pedidos procesados segun numero de orden
     async getAllPedidoOrden(orden){
+      if(orden === ''){
+        this.mensaje_modal = 'Debe introducir un numero de orden'
+        this.modal_noEncontrado = true
+        setTimeout(() => {
+            this.mensaje_modal = ''
+            this.modal_noEncontrado = false
+        }, 3000);
+      }else{
         this.setActiveOverlay()
         this.closeViewData()
         try
         {
-            const response = await axios.get(`http://localhost/supernova-almacen-api/ventas/pedidosProcesados?orden=${orden}`);
+            const response = await axios.get(`/ventas/pedidosProcesados?orden=${orden}`);
             if(response.status == 200){
-                if(response.data.status == 401){
-                  console.log(response.data.mensaje)
-                }else{
-                  this.pedidos = response.data;
+              this.pedidos = response.data
+              if(this.pedidos.length === 0){
+                  this.mensaje_modal = 'No se encontraron resultados'
+                  this.modal_noEncontrado = true
+                  setTimeout(() => {
+                      this.mensaje_modal = ''
+                      this.modal_noEncontrado = false
+                  }, 3000);
                 }
-              this.setDesactiveOverlay()
+                this.setDesactiveOverlay()
             } 
         }catch(e)
         {
             console.log(e)
             this.setActiveOverlay()
         }
+      }
     },
-
+    
+    //cargar componente de update data
     viewData(item){
         window.scrollTo( 0, 0);
-        console.log(item)
         this.component = ''
         setTimeout(()=>{
             this.Orden = item.orden
             this.Estatus = item.estatus
             let paqueteria = item.venta_paqueteria === '' ? 0 : item.venta_paqueteria
             this.saldo =  parseFloat(paqueteria)  + parseFloat(item.saldo_pendiente)
-            this.component = 'updateDatosOrden'
+            this.component = 'updateDatosOrden' 
         },300);
-        
     },
-
+    //metodo para cerrar componente 
     closeViewData(){
         this.component = ''
         this.Orden = ''
     },
-
+    //metodo que actualiza el status
     modificarEstatus(estatus){
         this.Estatus = estatus
     },
-     
+    
+    //metodo para abrir modal de confirmacion de validacion
     alertConfirm(mensaje){
       this.modal_confirm_data.texto = mensaje
       this.modal_confirm = true
     },
-
+    //metodo de actualizacion de historial 
     actualizarHistorial(historial){
-       this.history = {}
-       this.history = Object.assign({}, historial)
-       this.getAllPedidosPagados()
+        this.history = {}
+        this.history = Object.assign({}, historial)
+        this.getAllPedidosPagados()
     }
 
 
