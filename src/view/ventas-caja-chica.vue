@@ -53,7 +53,7 @@
                             <money class="mb-4" v-model="monto_salida" v-bind="money"  placeholder="0.00" ></money>
                             <!-- <v-text-field type="number" outlined placeholder="$0.00" v-model="monto_salida" @keypress="soloNumeros($event)" label="Ingrese el monto"></v-text-field> -->
                             <v-textarea rows="3" outlined label="Describa el motivo" v-model="motivo_salida"  @keypress.enter="saveSalida()"></v-textarea>
-                            <button class="btn-salida" @click="saveSalida()" >INGRESAR SALIDA</button>
+                            <v-btn class="primary btn-salida mt-3" @click="saveSalida()" >INGRESAR SALIDA</v-btn>
                         </v-col>
                     </v-row>
                     <v-row class="mb-8">
@@ -66,8 +66,8 @@
                             <span>Monto:</span>
                             <money class="mb-4" v-model="monto_deposito" v-bind="money"  placeholder="0.00" ></money>
                             <!-- <v-text-field type="number" outlined placeholder="$0.00" v-model="" @keypress="soloNumeros($event)" label="Ingrese el monto"></v-text-field> -->
-                            <v-text-field type="text" outlined label="Token" v-model="token"></v-text-field>
-                            <button class="btn-salida" @click="addDineroCajaChica()" >INGRESAR DINERO</button>
+                            <v-text-field type="password" append-icon="mdi-security" outlined label="Token" v-model="token"></v-text-field>
+                            <v-btn class="primary btn-salida mt-3" @click="addDineroCajaChica()" >INGRESAR DINERO</v-btn>
                         </v-col>
                     </v-row>
                 </v-card>

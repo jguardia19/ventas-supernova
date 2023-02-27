@@ -7,7 +7,7 @@
                 <v-col cols="12">
                     <v-text-field type="email" outlined label="Usuario" v-model="loginModel.username" append-icon="mdi-account"> </v-text-field>
                     <v-text-field type="password" outlined label="Contraseña"  v-model="loginModel.password" append-icon="mdi-lock" @keypress.enter="loginSession()"> </v-text-field>
-                    <v-btn class="primary" @click="loginSession()">ENTRAR</v-btn>
+                    <v-btn class="primary" @click="loginSession()" style="width: 100%;">ENTRAR</v-btn>
                 </v-col>
             </v-row>
 

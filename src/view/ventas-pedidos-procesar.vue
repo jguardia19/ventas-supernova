@@ -1,10 +1,6 @@
 <template>
     <v-container class="mt-3 contenedor" >  
 
-        <!-- componente de los datos personales -->
-        <pedidos-datos-personales
-        ></pedidos-datos-personales>
-
         <!-- componente del modal para agregar producto -->
         <modal-add-producto
         :modalAdd="modal_add"
@@ -48,104 +44,109 @@
             </v-card>
         </transition>
 
+        <v-row>
+            <v-col cols="8">
+                <!-- componente de los datos personales -->
+                <pedidos-datos-personales
+                ></pedidos-datos-personales>
+                <v-row id="scroll-target" style="max-height: 1000px" class="overflow-y-auto mt-3">
+                    <v-col cols="12">
+                    <v-card elevation="0"  v-scroll:#scroll-target="onScroll" align="center" justify="center" style="height: auto">
+                        <v-card-title>
+                            <v-col cols="12" class="d-flex justify-space-between">
+                                <h3 class="ticket--text"><v-icon color="ticket">mdi-cart-variant</v-icon> Pedido  Orden: {{$route.params.orden}} </h3> 
+                                <v-chip color="success" outlined><v-icon>mdi-cash </v-icon> <span>Total:${{Total | precio}}.00 </span></v-chip>  
+                                <v-btn class="primary" @click="modal_add = true"><v-icon>mdi-plus-circle</v-icon> AGREGAR PRODUCTO</v-btn>  
+                            </v-col>
+                            <v-col cols="12" v-if="!flag">
+                                <v-alert type="error">
+                                    La orden no se puede procesar ya que existe uno o mas productos sin stock
+                                </v-alert>
+                            </v-col>  
+                        </v-card-title>
+                        <v-card-text>
+                            <v-row class="mt-2">
+                                <v-col cols="12">
+                                    <v-data-table
+                                        :headers="headerPedido"
+                                        :items="pedidos"
+                                        :search="search"
+                                        :page.sync="page"
+                                        :items-per-page="itemsPerPage"
+                                        mobile-breakpoint="0"
+                                        >
 
-
-        <v-row   id="scroll-target" style="max-height: 1000px" class="overflow-y-auto mt-3">
-            <v-col cols="12" sm="12" md="7" lg="8">
-                <v-card elevation="0"  v-scroll:#scroll-target="onScroll" align="center" justify="center" style="height: auto">
-                    <v-card-title>
-                        <v-col cols="12" class="d-flex justify-space-between">
-                            <h3 class="ticket--text"><v-icon color="ticket">mdi-cart-variant</v-icon> Pedido  Orden: {{$route.params.orden}} </h3> 
-                            <v-chip color="success" outlined><v-icon>mdi-cash </v-icon> <span>Total:${{Total | precio}}.00 </span></v-chip>  
-                            <v-btn class="primary" @click="modal_add = true"><v-icon>mdi-plus-circle</v-icon> AGREGAR PRODUCTO</v-btn>  
-                        </v-col>
-                        <v-col cols="12" v-if="!flag">
-                            <v-alert type="error">
-                                La orden no se puede procesar ya que existe uno o mas productos sin stock
-                            </v-alert>
-                        </v-col>  
-                    </v-card-title>
-                    <v-card-text>
-                        <v-row class="mt-2">
-                            <v-col cols="12">
-                                <v-data-table
-                                    :headers="headerPedido"
-                                    :items="pedidos"
-                                    :search="search"
-                                    :page.sync="page"
-                                    :items-per-page="itemsPerPage"
-                                    mobile-breakpoint="0"
-                                    >
-
-                                    <template v-slot:[`item.cant`]="{item,index}">
-                                        <div class="cantidad">
-                                            <v-text-field outlined v-model="item.cantidad" @keypress="soloNumeros($event)" type="number"></v-text-field>
-                                            <v-tooltip bottom>
-                                                <template v-slot:activator="{ on, attrs }">
-                                                    <v-btn color="primary" @click="updateCantidad(item,index,1)" :disabled="parseInt(item.almacen) <= parseInt(item.cantidad)" class="btn-update"  v-bind="attrs" v-on="on">
-                                                        <v-icon color="white">mdi-update</v-icon>
-                                                    </v-btn>
-                                                </template>
-                                                <span>Actualizar</span>
-                                            </v-tooltip>
-                                        </div>
-                                    </template>
-                                    <template v-slot:[`item.nom`]="{item}">
-                                        <span   v-if="parseInt(item.almacen) >= parseInt(item.cantidad)">{{item.nombre}}  </span>
-                                        <span  class="white--text error"  v-else >{{item.nombre}} *sin stock* </span>
-                                    </template>
-                                    <template v-slot:[`item.cod`]="{item}">
-                                        <v-chip label color="warning" v-if="parseInt(item.almacen) >= parseInt(item.cantidad)"><v-icon class="mr-1">mdi-barcode</v-icon> {{item.codigo}}  </v-chip>
-                                        <v-chip label color="error" v-else><v-icon class="mr-1">mdi-barcode</v-icon> {{item.codigo}} </v-chip>
-                                    </template>
-                                    <template v-slot:[`item.price`]="{item,index}">
-                                        <div class="cantidad" v-if="item.check" >
-                                                <v-text-field type="number" @keypress="soloNumeros($event)" outlined v-model="item.precio" ></v-text-field>
+                                        <template v-slot:[`item.cant`]="{item,index}">
+                                            <div class="cantidad">
+                                                <v-text-field outlined v-model="item.cantidad" @keypress="soloNumeros($event)" type="number" min="1" ></v-text-field>
                                                 <v-tooltip bottom>
                                                     <template v-slot:activator="{ on, attrs }">
-                                                        <v-btn color="success" @click="updateCantidad(item,index,2)" class="btn-update"  v-bind="attrs" v-on="on">
+                                                        <v-btn color="primary" @click="updateCantidad(item,index,1)" :disabled="parseInt(item.almacen) <= parseInt(item.cantidad)" class="btn-update"  v-bind="attrs" v-on="on">
                                                             <v-icon color="white">mdi-update</v-icon>
                                                         </v-btn>
                                                     </template>
                                                     <span>Actualizar</span>
                                                 </v-tooltip>
-                                                <v-tooltip bottom>
+                                            </div>
+                                        </template>
+                                        <template v-slot:[`item.nom`]="{item}">
+                                            <span   v-if="parseInt(item.almacen) >= parseInt(item.cantidad)">{{item.nombre}}  </span>
+                                            <span  class="white--text error"  v-else >{{item.nombre}} *sin stock* </span>
+                                        </template>
+                                        <template v-slot:[`item.cod`]="{item}">
+                                            <v-chip label color="warning" v-if="parseInt(item.almacen) >= parseInt(item.cantidad)"><v-icon class="mr-1">mdi-barcode</v-icon> {{item.codigo}}  </v-chip>
+                                            <v-chip label color="error" v-else><v-icon class="mr-1">mdi-barcode</v-icon> {{item.codigo}} </v-chip>
+                                        </template>
+                                        <template v-slot:[`item.price`]="{item,index}">
+                                            <div class="cantidad" v-if="item.check" >
+                                                    <v-text-field type="number" @keypress="soloNumeros($event)" outlined v-model="item.precio" min="1" ></v-text-field>
+                                                    <v-tooltip bottom>
+                                                        <template v-slot:activator="{ on, attrs }">
+                                                            <v-btn color="success" @click="updateCantidad(item,index,2)" class="btn-update"  v-bind="attrs" v-on="on">
+                                                                <v-icon color="white">mdi-update</v-icon>
+                                                            </v-btn>
+                                                        </template>
+                                                        <span>Actualizar</span>
+                                                    </v-tooltip>
+                                                    <v-tooltip bottom>
+                                                    <template v-slot:activator="{ on, attrs }">
+                                                        <v-btn color="error" class="btn-update"  v-bind="attrs" v-on="on" @click="item.check = !item.check">
+                                                            <v-icon color="white">mdi-close</v-icon>
+                                                        </v-btn>
+                                                    </template>
+                                                    <span>Cancelar</span>
+                                                </v-tooltip>
+                                            </div>
+                                            <v-chip label outlined color="ticket" class="price"  @click="item.check = !item.check"  style="font-weight:bold" v-else>${{item.precio | precio}}.00 </v-chip>
+                                        </template>
+                                        <template v-slot:[`item.import`]="{item}">
+                                            <span class="success--text"  style="font-weight:bold">${{item.total | precio}}.00 </span>
+                                        </template>
+                                        <template v-slot:[`item.actions`]="{ item,index }">  
+                                            <v-tooltip bottom>
                                                 <template v-slot:activator="{ on, attrs }">
-                                                    <v-btn color="error" class="btn-update"  v-bind="attrs" v-on="on" @click="item.check = !item.check">
-                                                        <v-icon color="white">mdi-close</v-icon>
-                                                    </v-btn>
+                                                <v-btn
+                                                    color="error"
+                                                    class="mr-2"
+                                                    icon
+                                                    v-bind="attrs"
+                                                    v-on="on"
+                                                    @click="deleteItem(item,index)"
+                                                >
+                                                    <v-icon>mdi-trash-can</v-icon>
+                                                </v-btn>
                                                 </template>
-                                                <span>Cancelar</span>
+                                                <span>Eliminar</span>
                                             </v-tooltip>
-                                        </div>
-                                        <v-chip label outlined color="ticket" class="price"  @click="item.check = !item.check"  style="font-weight:bold" v-else>${{item.precio | precio}}.00 </v-chip>
-                                    </template>
-                                    <template v-slot:[`item.import`]="{item}">
-                                        <span class="success--text"  style="font-weight:bold">${{item.total | precio}}.00 </span>
-                                    </template>
-                                    <template v-slot:[`item.actions`]="{ item,index }">  
-                                        <v-tooltip bottom>
-                                            <template v-slot:activator="{ on, attrs }">
-                                            <v-btn
-                                                color="error"
-                                                class="mr-2"
-                                                icon
-                                                v-bind="attrs"
-                                                v-on="on"
-                                                @click="deleteItem(item,index)"
-                                            >
-                                                <v-icon>mdi-trash-can</v-icon>
-                                            </v-btn>
-                                            </template>
-                                            <span>Eliminar</span>
-                                        </v-tooltip>
-                                    </template>
-                                
-                                </v-data-table>
-                            </v-col>
-                        </v-row>
-                    </v-card-text>
-                </v-card>
+                                        </template>
+                                    
+                                    </v-data-table>
+                                </v-col>
+                            </v-row>
+                        </v-card-text>
+                    </v-card>
+                    </v-col>
+                </v-row>
             </v-col>
             <v-col cols="12" sm="8" md="5" lg="4">
                 <v-card elevation="0">
@@ -168,7 +169,6 @@
                                                         value="efectivo"
                                                         v-model="metodoPago"
                                                         ></v-checkbox>
-                                                        <!-- <v-text-field outlined type="text"  @keypress="soloNumeros($event)" v-model="monto_efectivo" :disabled="showEfectivo" placeholder="0.00"></v-text-field> -->
                                                         <money v-model="monto_efectivo" v-bind="money" :disabled="showEfectivo" placeholder="0.00"></money>
                                                     </v-col>
                                                 </v-row>
@@ -204,8 +204,6 @@
                                                                 ></v-autocomplete>
                                                             </v-col>
                                                         </v-row>
-                                                        <!-- <v-text-field outlined type="text"  @keypress="soloNumeros($event)"  v-model="monto_transferencia" class="mr-2" placeholder="0.00" :disabled="showTransferencia" ></v-text-field> -->
-
                                                     </v-col>
                                                 </v-row>
                                             </v-expansion-panel-content>
@@ -266,7 +264,6 @@
                                                                 <v-textarea rows="1" v-model="nota_otro" outlined label="Nota" :disabled="showOtro"> </v-textarea>
                                                             </v-col>
                                                         </v-row>
-                                                            <!-- <v-text-field outlined class="mr-2" @keypress="soloNumeros($event)" v-model="monto_otro" type="text" placeholder="0.00" :disabled=""></v-text-field> -->
                                                     </v-col>
                                                 </v-row>
                                             </v-expansion-panel-content>
@@ -329,7 +326,6 @@
                                             <v-col cols="6" class="text-center" style="position:relative;">
                                                 <span class="label-fecha">Fecha y hora de recojo:</span>
                                                 <input class="input-date-time" type="datetime-local" v-model="pedido.fecha_entrega" />
-                                                <!-- <v-text-field type="datetime" v-model="pedido.fecha_entrega" label="Fecha recojo" outlined color="primary"></v-text-field> -->
                                             </v-col>
                                             <v-col cols="6" class="text-center">
                                                 <v-textarea  rows="1"  v-model="pedido.nota" append-icon="mdi-note" label="Nota" outlined color="primary" ></v-textarea>
@@ -347,7 +343,8 @@
                     </v-card-text>
                 </v-card>
             </v-col>
-        </v-row>    
+        </v-row>
+
 
         <transition 
             enter-active-class="animate__animated animate__fadeInLeft"
@@ -456,10 +453,10 @@ components: { pedidosDatosPersonales, ModalAddProducto , Money},
             banco_deposito:'',
             banco_transferencia:'',
             vendedoras:[
-                {id:1,nombre:"Daniela Ordoñez"},
-                {id:2,nombre:"Selene Hernandez"},
-                {id:3,nombre:"Vanessa Vidal"},
-                {id:4,nombre:"Oficina"},
+                {id:1,nombre:"NACIONAL"},
+                {id:2,nombre:"FORANEO"},
+                {id:3,nombre:"ENTREGAS"},
+                {id:4,nombre:"OFICINA"},
             ]
         }
     },
@@ -866,7 +863,7 @@ components: { pedidosDatosPersonales, ModalAddProducto , Money},
                 }
                 if( item === 'otro'){
                     monto = this.monto_otro
-                    banco = item
+                    banco = this.nota_otro
                 }
 
                 Pagos.push({"metodo":item,"monto":monto,"banco":banco})

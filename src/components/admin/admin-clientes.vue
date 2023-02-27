@@ -17,7 +17,7 @@
                     </template>
                     <template v-slot:[`item.client`]="{ item }">
                         <v-icon class="mr-1" color="primary">mdi-account</v-icon>
-                        <span style="font-weight:bold;color:#2057a5;text-decoration:underline;cursor:pointer;"> {{ item.fullName }} </span>
+                        <span style="font-weight:bold;color:#2057a5;text-decoration:underline;cursor:pointer;" @click="viewClient(item.id)"> {{ item.fullName }} </span>
                     </template>
                     <template v-slot:[`item.pedidos`]="{ item }">
                         <v-chip outlined label color="success"> <v-icon>mdi-tag</v-icon>  {{ item.total_pedidos }}  </v-chip>

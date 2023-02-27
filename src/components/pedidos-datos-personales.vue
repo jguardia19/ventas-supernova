@@ -1,6 +1,5 @@
 <template>
-        <v-row>
-            <v-col cols="12">
+
                 <v-card class="px-5 py-8" elevation="0">
                     <div class="loading" v-if="loading">
                         <div class="container-loading text-center">
@@ -110,8 +109,6 @@
                         </v-col>
                     </v-row>
                 </v-card>
-            </v-col>
-        </v-row>
 </template>
 
 <script>

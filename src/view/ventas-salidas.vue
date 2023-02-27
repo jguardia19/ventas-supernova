@@ -41,7 +41,7 @@
                                             <span>Monto:</span>
                                             <money class="mb-4" v-model="salida.monto" v-bind="money"  placeholder="0.00" ></money>
                                             <v-textarea rows="2" outlined label="Motivo" v-model="salida.motivo" @keypress.enter="saveSalida()"></v-textarea>
-                                            <button class="btn-salida" @click="saveSalida()" >ACEPTAR</button>
+                                            <v-btn class="primary mt-3 btn-salida" @click="saveSalida()" >ACEPTAR</v-btn>
                                         </v-col>
                                     </v-row>
                                 </div>

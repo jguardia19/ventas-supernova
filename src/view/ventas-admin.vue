@@ -27,6 +27,12 @@
                         </div>
                         <h4 class="primary--text">Clientes</h4>
                     </div>
+                    <div :class="{'item-menu-admin':true,'active':activeReporte} " @click="selectItemMenu('reporte')">
+                        <div class="avatar-icon">
+                            <v-icon color="primary">mdi-clipboard</v-icon>
+                        </div>
+                        <h4 class="primary--text">Reporte</h4>
+                    </div>
                 </div>     
             </v-col>
         </v-row>
@@ -264,8 +270,9 @@ import axios from 'axios'
 import adminUsuarios from '@/components/admin/admin-usuarios.vue'
 import adminModulos from '@/components/admin/admin-modulos.vue'
 import adminClientes from '@/components/admin/admin-clientes.vue'
+import adminReporte from '@/components/admin/admin-reporte.vue'
 export default {
-    components: { adminUsuarios, adminModulos, adminClientes },
+    components: { adminUsuarios, adminModulos, adminClientes, adminReporte },
     data(){
         return{
             tiposUsuario:[],
@@ -291,6 +298,7 @@ export default {
             activeType:false,
             activeModulos:false,
             activeCliente:false,
+            activeReporte:false,
             componenteMenu:'',
             cabecera:[
                 {
@@ -518,7 +526,7 @@ export default {
 
         //metodo para seleccionar opcion de admin
         selectItemMenu(item){
-            this.activeUsuarios = false,this.activeModulos = false, this.activeType = false, this.activeCliente = false 
+            this.activeUsuarios = false,this.activeModulos = false, this.activeType = false, this.activeCliente = false,this.activeReporte = false
             switch(item){
                 case 'usuario':
                     this.activeUsuarios = true
@@ -535,6 +543,10 @@ export default {
                 case 'clientes':
                     this.activeCliente = true
                     this.componenteMenu = 'admin-clientes'
+                    break;
+                case 'reporte':
+                    this.activeReporte = true
+                    this.componenteMenu = 'admin-reporte'
                     break;
                 default:
                     break;

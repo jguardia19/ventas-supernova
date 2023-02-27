@@ -143,7 +143,7 @@
                                                                 <money v-model="monto_otro" v-bind="money" :disabled="showOtro" placeholder="0.00"></money>
                                                             </v-col>
                                                             <v-col cols="5">
-                                                                <v-textarea rows="1" outlined label="Nota" :disabled="showOtro"> </v-textarea>
+                                                                <v-textarea rows="1" outlined label="Nota" :disabled="showOtro" v-model="nota_otro"> </v-textarea>
                                                             </v-col>
                                                         </v-row>          
                                                     </v-col>
@@ -351,6 +351,7 @@ export default {
             monto_otro:null,
             banco_deposito:'',
             banco_transferencia:'',
+            nota_otro:'',
             efectivo:'',
             disabledProcesar:true,
             paqueteria:0,
@@ -560,7 +561,7 @@ methods:{
                 }
                 if( item === 'otro'){
                     monto = this.monto_otro
-                    banco = item
+                    banco = this.nota_otro
                 }
 
             Pagos.push({"metodo":item,"monto":monto,"banco":banco})
